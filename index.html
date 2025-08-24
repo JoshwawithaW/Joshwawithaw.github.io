@@ -1,85 +1,130 @@
 <!doctype html>
 <html lang="en">
 <head>
-<style>
-body {
-  height: 100vh;
-  width: 100vw;
-  background-color: #11111b;
-  margin: 0rem;
-  overflow: hidden;
-}
+  <meta charset="UTF-8">
+  <title>Tinted Image Track</title>
+  <style>
+    body {
+      height: 100vh;
+      width: 100vw;
+      background-color: #11111b;
+      margin: 0;
+      overflow: hidden;
+    }
 
-#image-track {
-  display: flex;
-  gap: 4vmin;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(0%, -50%);
-  user-select: none; /* Prevent image highlighting */
-}
+    #image-track {
+      display: flex;
+      gap: 4vmin;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(0%, -50%);
+      user-select: none; /* Prevent image highlighting */
+    }
 
-/* --- Image with tint wrapper --- */
-.image-wrapper {
-  position: relative;
-  width: 50vmin;
-  height: 66vmin;
-  overflow: hidden;
-}
+    /* --- Image with tint wrapper --- */
+    .image-wrapper {
+      position: relative;
+      width: 50vmin;
+      height: 66vmin;
+      overflow: hidden;
+    }
 
-.image-wrapper img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 100% center;
-  display: block;
-}
+    .image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 100% center;
+      display: block;
+    }
 
-/* Tint overlay */
-.image-wrapper::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: var(--tint, transparent);
-  mix-blend-mode: multiply;  /* keeps image visible */
-  opacity: 0.6;              /* adjust tint strength */
-  pointer-events: none;
-}
-</style>
+    /* Tint overlay */
+    .image-wrapper::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: var(--tint, transparent);
+      mix-blend-mode: multiply;  /* keeps image visible */
+      opacity: 0.6;              /* adjust tint strength */
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-<div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
+  <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
 
-  <div class="image-wrapper" style="--tint:#f5e0dc;">
-    <img src="JE2025.jpg" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;">
+      <img src="JE2025.jpg" draggable="false" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f2cdcd;">
+      <img src="AHH1.png" draggable="false" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5c2e7;">
+      <img src="GE1.png" draggable="false" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#cba6f7;">
+      <img src="PP1.png" draggable="false" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f38ba8;">
+      <img src="https://lh3.googleusercontent.com/pw/ADCreHew7FVbqBSGUcmlVbKlFc5P5tJOfrslsybVNBuFlEJp9_zE5JdnL9KA6pbarTpNUxCLfUek4zBFgsEkPeneGY4Zk8ciGiSgi25SXDBrwVYfqzjq65Qv=w2400" draggable="false" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#eba0ac;">
+      <img src="https://lh3.googleusercontent.com/pw/ADCreHeLSZ8lqfkkOlEgwj48f6Rnld3lCHbdChmpIefJDNj89BeBHpKctyDNqV_63mnx8hcpRIj00hIBDEj96RrUQx-191ipAcN_fvi9l-nf65yQ-gnrM54=w2400" draggable="false" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#fab387;">
+      <img src="https://lh3.googleusercontent.com/pw/ADCreHc9-AvgfW69D2B4jJ3ASfZ41XuZrJq7QltGOLdtgMF0Gl53AoWpkyAkiud4q1K68wJmkLmRXsXGEdgjdMz4svjo_cWQqlGUhnp9pyCm-Tn8RBResRQ=w2400" draggable="false" />
+    </div>
+
   </div>
 
-  <div class="image-wrapper" style="--tint:#f2cdcd;">
-    <img src="AHH1.png" draggable="false" />
-  </div>
+  <script>
+    const track = document.getElementById("image-track");
 
-  <div class="image-wrapper" style="--tint:#f5c2e7;">
-    <img src="GE1.png" draggable="false" />
-  </div>
+    const handleOnDown = e => track.dataset.mouseDownAt = e.clientX;
 
-  <div class="image-wrapper" style="--tint:#cba6f7;">
-    <img src="PP1.png" draggable="false" />
-  </div>
+    const handleOnUp = () => {
+      track.dataset.mouseDownAt = "0";  
+      track.dataset.prevPercentage = track.dataset.percentage;
+    }
 
-  <div class="image-wrapper" style="--tint:#f38ba8;">
-    <img src="https://lh3.googleusercontent.com/pw/ADCreHew7FVbqBSGUcmlVbKlFc5P5tJOfrslsybVNBuFlEJp9_zE5JdnL9KA6pbarTpNUxCLfUek4zBFgsEkPeneGY4Zk8ciGiSgi25SXDBrwVYfqzjq65Qv=w2400" draggable="false" />
-  </div>
+    const handleOnMove = e => {
+      if(track.dataset.mouseDownAt === "0") return;
 
-  <div class="image-wrapper" style="--tint:#eba0ac;">
-    <img src="https://lh3.googleusercontent.com/pw/ADCreHeLSZ8lqfkkOlEgwj48f6Rnld3lCHbdChmpIefJDNj89BeBHpKctyDNqV_63mnx8hcpRIj00hIBDEj96RrUQx-191ipAcN_fvi9l-nf65yQ-gnrM54=w2400" draggable="false" />
-  </div>
+      const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX,
+            maxDelta = window.innerWidth / 2;
 
-  <div class="image-wrapper" style="--tint:#fab387;">
-    <img src="https://lh3.googleusercontent.com/pw/ADCreHc9-AvgfW69D2B4jJ3ASfZ41XuZrJq7QltGOLdtgMF0Gl53AoWpkyAkiud4q1K68wJmkLmRXsXGEdgjdMz4svjo_cWQqlGUhnp9pyCm-Tn8RBResRQ=w2400" draggable="false" />
-  </div>
+      const percentage = (mouseDelta / maxDelta) * -100,
+            nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
+            nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
 
-</div>
+      track.dataset.percentage = nextPercentage;
+
+      track.animate({
+        transform: `translate(${nextPercentage}%, -50%)`
+      }, { duration: 1200, fill: "forwards" });
+
+      for(const image of track.getElementsByTagName("img")) {
+        image.animate({
+          objectPosition: `${100 + nextPercentage}% center`
+        }, { duration: 1200, fill: "forwards" });
+      }
+    }
+
+    window.onmousedown = e => handleOnDown(e);
+    window.ontouchstart = e => handleOnDown(e.touches[0]);
+
+    window.onmouseup = e => handleOnUp(e);
+    window.ontouchend = e => handleOnUp(e.touches[0]);
+
+    window.onmousemove = e => handleOnMove(e);
+    window.ontouchmove = e => handleOnMove(e.touches[0]);
+  </script>
 </body>
 </html>
 
