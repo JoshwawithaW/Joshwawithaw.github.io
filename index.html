@@ -57,27 +57,27 @@
       <img src="JE2025.jpg" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f2cdcd;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;">
       <img src="AHH1.png" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5c2e7;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;">
       <img src="GE1.png" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#cba6f7;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;">
       <img src="PP1.png" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f38ba8;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;">
       <img src="https://lh3.googleusercontent.com/pw/ADCreHew7FVbqBSGUcmlVbKlFc5P5tJOfrslsybVNBuFlEJp9_zE5JdnL9KA6pbarTpNUxCLfUek4zBFgsEkPeneGY4Zk8ciGiSgi25SXDBrwVYfqzjq65Qv=w2400" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#eba0ac;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;">
       <img src="https://lh3.googleusercontent.com/pw/ADCreHeLSZ8lqfkkOlEgwj48f6Rnld3lCHbdChmpIefJDNj89BeBHpKctyDNqV_63mnx8hcpRIj00hIBDEj96RrUQx-191ipAcN_fvi9l-nf65yQ-gnrM54=w2400" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#fab387;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;">
       <img src="https://lh3.googleusercontent.com/pw/ADCreHc9-AvgfW69D2B4jJ3ASfZ41XuZrJq7QltGOLdtgMF0Gl53AoWpkyAkiud4q1K68wJmkLmRXsXGEdgjdMz4svjo_cWQqlGUhnp9pyCm-Tn8RBResRQ=w2400" draggable="false" />
     </div>
 
@@ -105,9 +105,10 @@
 
       track.dataset.percentage = nextPercentage;
 
-    track.animate({
-      transform: `translate(calc(${nextPercentage}% - 50%), -50%)`
-    }, { duration: 1200, fill: "forwards" });
+track.animate({
+  transform: `translate(${nextPercentage}%, -50%)`
+}, { duration: 1200, fill: "forwards" });
+
 
 
       for(const image of track.getElementsByTagName("img")) {
