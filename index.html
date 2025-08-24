@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Book Blog</title>
+  <title>Book Club</title>
   <style>
     body {
       height: 100vh;
@@ -36,7 +36,6 @@
         pointer-events: none;
     }
 
-
     /* --- Image with tint wrapper --- */
     .image-wrapper {
       position: relative;
@@ -63,11 +62,11 @@
       inset: 0;
       background-color: var(--tint, transparent);
       mix-blend-mode: multiply;
-      opacity: 0.5; /* Opacity should be a value between 0 and 1 */
+      opacity: 0.5; /* Corrected opacity value */
       pointer-events: none;
     }
 
-    /* --- New Styles for Details View --- */
+    /* --- Styles for Details View --- */
 
     #details-view {
         position: fixed;
@@ -133,39 +132,39 @@
         transform: translate(-50%, -50%);
         z-index: 1001; /* Make sure it's above the details overlay */
     }
-
   </style>
 </head>
 <body>
   <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
 
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Journey's End" data-description="A detailed look into the final moments of a grand adventure. This piece captures the serene yet powerful emotions of reaching a long-sought destination.">
-      <img src="JE2025.jpg" draggable="false" />
+      <img src="images/JE2025.jpg" draggable="false" />
     </div>
 
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Art House" data-description="An exploration of abstract forms and colors, representing the chaotic beauty of a creative mind at work. Each stroke is intentional and full of meaning.">
-      <img src="AHH1.png" draggable="false" />
+      <img src="images/AHH1.png" draggable="false" />
     </div>
 
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Green Earth" data-description="This image is a tribute to the natural world. It highlights the intricate patterns found in nature and serves as a reminder of the planet's fragile beauty.">
-      <img src="GE1.png" draggable="false" />
+      <img src="images/GE1.png" draggable="false" />
     </div>
 
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Profile Portrait" data-description="A classic portrait study focusing on light, shadow, and expression. The subject's gaze tells a story of resilience and introspection.">
-      <img src="PP1.png" draggable="false" />
+      <img src="images/PP1.png" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="User Profile 1" data-description="Description for the fifth image goes here. Update this text to be relevant to the image content.">
-      <img src="https://lh3.googleusercontent.com/pw/ADCreHew7FVbqBSGUcmlVbKlFc5P5tJOfrslsybVNBuFlEJp9_zE5JdnL9KA6pbarTpNUxCLfUek4zBFgsEkPeneGY4Zk8ciGiSgi25SXDBrwVYfqzjq65Qv=w2400" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Mountain View" data-description="A majestic mountain range captured at dawn. The light creates long shadows and highlights the rugged textures of the landscape.">
+      <img src="https://picsum.photos/seed/picsum1/800/1200" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="User Profile 2" data-description="Description for the sixth image goes here. Update this text to be relevant to the image content.">
-      <img src="https://lh3.googleusercontent.com/pw/ADCreHeLSZ8lqfkkOlEgwj48f6Rnld3lCHbdChmpIefJDNj89BeBHpKctyDNqV_63mnx8hcpRIj00hIBDEj96RrUQx-191ipAcN_fvi9l-nf65yQ-gnrM54=w2400" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="City Lights" data-description="An aerial view of a bustling city at night, with streets illuminated by countless lights, creating a vibrant, energetic scene.">
+      <img src="https://picsum.photos/seed/picsum2/800/1200" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="User Profile 3" data-description="Description for the seventh image goes here. Update this text to be relevant to the image content.">
-      <img src="https://lh3.googleusercontent.com/pw/ADCreHc9-AvgfW69D2B4jJ3ASfZ41XuZrJq7QltGOLdtgMF0Gl53AoWpkyAkiud4q1K68wJmkLmRXsXGEdgjdMz4svjo_cWQqlGUhnp9pyCm-Tn8RBResRQ=w2400" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Coastal Serenity" data-description="Calm waves gently washing over a sandy shore during sunset, painting the sky in warm hues of orange and purple.">
+      <img src="https://picsum.photos/seed/picsum3/800/1200" draggable="false" />
     </div>
+
   </div>
 
   <div id="details-view">
@@ -179,7 +178,14 @@
   <script>
     const track = document.getElementById("image-track");
 
-    const handleOnDown = e => track.dataset.mouseDownAt = e.clientX;
+    // A flag to track dragging state
+    let isDragging = false;
+
+    const handleOnDown = e => {
+      track.dataset.mouseDownAt = e.clientX;
+      // Reset the drag flag on every mouse down
+      isDragging = false;
+    }
 
     const handleOnUp = () => {
       track.dataset.mouseDownAt = "0";
@@ -187,16 +193,18 @@
     }
 
     const handleOnMove = e => {
-      // Return if the details view is active, disabling the drag
-      if(document.body.classList.contains("details-active")) return;
-      if(track.dataset.mouseDownAt === "0") return;
+      if (document.body.classList.contains("details-active")) return;
+      if (track.dataset.mouseDownAt === "0") return;
+
+      // If we're moving the mouse, we're dragging
+      isDragging = true;
 
       const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX,
-            maxDelta = window.innerWidth / 2;
+        maxDelta = window.innerWidth / 2;
 
       const percentage = (mouseDelta / maxDelta) * -100,
-            nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
-            nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
+        nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
+        nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
 
       track.dataset.percentage = nextPercentage;
 
@@ -204,7 +212,7 @@
         transform: `translate(${nextPercentage}%, -50%)`
       }, { duration: 1200, fill: "forwards" });
 
-      for(const image of track.getElementsByTagName("img")) {
+      for (const image of track.getElementsByTagName("img")) {
         image.animate({
           objectPosition: `${100 + nextPercentage}% center`
         }, { duration: 1200, fill: "forwards" });
@@ -219,8 +227,7 @@
     window.onmousemove = e => handleOnMove(e);
     window.ontouchmove = e => handleOnMove(e.touches[0]);
 
-
-    /* --- NEW SCRIPT FOR DETAILS VIEW --- */
+    /* --- SCRIPT FOR DETAILS VIEW --- */
 
     const imageWrappers = document.querySelectorAll(".image-wrapper");
     const detailsView = document.getElementById("details-view");
@@ -230,18 +237,17 @@
 
     imageWrappers.forEach(wrapper => {
       wrapper.addEventListener("click", () => {
-        // Prevent click if it was a drag
-        if (track.dataset.mouseDownAt !== "0") return;
+        // Prevent click if dragging occurred
+        if (isDragging) {
+          return;
+        }
 
-        // Get text from data attributes
         const title = wrapper.dataset.title;
         const description = wrapper.dataset.description;
 
-        // Populate the details box
         detailsTitle.textContent = title;
         detailsDescription.textContent = description;
 
-        // Activate the details view
         document.body.classList.add("details-active");
         wrapper.classList.add("expanded");
       });
@@ -266,8 +272,6 @@
             hideDetails();
         }
     });
-
   </script>
 </body>
 </html>
-
