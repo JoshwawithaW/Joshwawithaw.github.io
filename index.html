@@ -2,13 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tinted Image Track</title>
+  <title>Tinted Image Track with Details</title>
   <style>
     body {
       height: 100vh;
       width: 100vw;
       background-color: #11111b;
       margin: 0;
+      overflow: hidden;
+      /* Add a transition for when we fade the track out */
+      transition: opacity 0.5s ease;
+    }
+
+    /* New class to apply when details view is active */
+    body.details-active {
       overflow: hidden;
     }
 
@@ -20,7 +27,15 @@
       top: 50%;
       transform: translate(0%, -50%);
       user-select: none; /* Prevent image highlighting */
+      transition: opacity 0.5s ease;
     }
+
+    /* Fade out the track when details are showing */
+    body.details-active #image-track {
+        opacity: 0;
+        pointer-events: none;
+    }
+
 
     /* --- Image with tint wrapper --- */
     .image-wrapper {
@@ -28,6 +43,9 @@
       width: 50vmin;
       height: 66vmin;
       overflow: hidden;
+      cursor: pointer;
+      /* Add transition for the zoom effect */
+      transition: transform 0.4s ease, width 0.4s ease, height 0.4s ease, left 0.4s ease, top 0.4s ease;
     }
 
     .image-wrapper img {
@@ -44,43 +62,118 @@
       position: absolute;
       inset: 0;
       background-color: var(--tint, transparent);
-      mix-blend-mode: multiply;  /* keeps image visible */
-      opacity:50;              /* adjust tint strength */
+      mix-blend-mode: multiply;
+      opacity: 0.5; /* Opacity should be a value between 0 and 1 */
       pointer-events: none;
     }
+
+    /* --- New Styles for Details View --- */
+
+    #details-view {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Align content to the left */
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+    }
+
+    body.details-active #details-view {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    #details-content {
+        width: 45vw; /* Almost half the screen, with some padding */
+        height: 100vh;
+        background-color: #1a1a2e;
+        color: #f5e0dc;
+        padding: 5vmin;
+        box-sizing: border-box; /* Include padding in the width/height */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    #details-content h2 {
+        font-family: sans-serif;
+        font-size: 3rem;
+        margin-top: 0;
+    }
+
+    #details-content p {
+        font-family: serif;
+        font-size: 1.2rem;
+        line-height: 1.6;
+    }
+
+    #back-button {
+        background-color: #f5e0dc;
+        color: #11111b;
+        border: none;
+        padding: 15px 30px;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 2rem;
+        align-self: flex-start; /* Align button to the left */
+    }
+
+    /* This class will be added to the image that is clicked */
+    .image-wrapper.expanded {
+        position: fixed;
+        width: 50vw;
+        height: 100vh;
+        top: 50%;
+        left: 75%; /* Center in the right half of the screen */
+        transform: translate(-50%, -50%);
+        z-index: 1001; /* Make sure it's above the details overlay */
+    }
+
   </style>
 </head>
 <body>
   <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Journey's End" data-description="A detailed look into the final moments of a grand adventure. This piece captures the serene yet powerful emotions of reaching a long-sought destination.">
       <img src="JE2025.jpg" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Art House" data-description="An exploration of abstract forms and colors, representing the chaotic beauty of a creative mind at work. Each stroke is intentional and full of meaning.">
       <img src="AHH1.png" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Green Earth" data-description="This image is a tribute to the natural world. It highlights the intricate patterns found in nature and serves as a reminder of the planet's fragile beauty.">
       <img src="GE1.png" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Profile Portrait" data-description="A classic portrait study focusing on light, shadow, and expression. The subject's gaze tells a story of resilience and introspection.">
       <img src="PP1.png" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="User Profile 1" data-description="Description for the fifth image goes here. Update this text to be relevant to the image content.">
       <img src="https://lh3.googleusercontent.com/pw/ADCreHew7FVbqBSGUcmlVbKlFc5P5tJOfrslsybVNBuFlEJp9_zE5JdnL9KA6pbarTpNUxCLfUek4zBFgsEkPeneGY4Zk8ciGiSgi25SXDBrwVYfqzjq65Qv=w2400" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="User Profile 2" data-description="Description for the sixth image goes here. Update this text to be relevant to the image content.">
       <img src="https://lh3.googleusercontent.com/pw/ADCreHeLSZ8lqfkkOlEgwj48f6Rnld3lCHbdChmpIefJDNj89BeBHpKctyDNqV_63mnx8hcpRIj00hIBDEj96RrUQx-191ipAcN_fvi9l-nf65yQ-gnrM54=w2400" draggable="false" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;">
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="User Profile 3" data-description="Description for the seventh image goes here. Update this text to be relevant to the image content.">
       <img src="https://lh3.googleusercontent.com/pw/ADCreHc9-AvgfW69D2B4jJ3ASfZ41XuZrJq7QltGOLdtgMF0Gl53AoWpkyAkiud4q1K68wJmkLmRXsXGEdgjdMz4svjo_cWQqlGUhnp9pyCm-Tn8RBResRQ=w2400" draggable="false" />
     </div>
+  </div>
 
+  <div id="details-view">
+    <div id="details-content">
+      <h2 id="details-title">Image Title</h2>
+      <p id="details-description">Image description will appear here.</p>
+      <button id="back-button">Go Back</button>
+    </div>
   </div>
 
   <script>
@@ -89,11 +182,13 @@
     const handleOnDown = e => track.dataset.mouseDownAt = e.clientX;
 
     const handleOnUp = () => {
-      track.dataset.mouseDownAt = "0";  
+      track.dataset.mouseDownAt = "0";
       track.dataset.prevPercentage = track.dataset.percentage;
     }
 
     const handleOnMove = e => {
+      // Return if the details view is active, disabling the drag
+      if(document.body.classList.contains("details-active")) return;
       if(track.dataset.mouseDownAt === "0") return;
 
       const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX,
@@ -105,11 +200,9 @@
 
       track.dataset.percentage = nextPercentage;
 
-track.animate({
-  transform: `translate(${nextPercentage}%, -50%)`
-}, { duration: 1200, fill: "forwards" });
-
-
+      track.animate({
+        transform: `translate(${nextPercentage}%, -50%)`
+      }, { duration: 1200, fill: "forwards" });
 
       for(const image of track.getElementsByTagName("img")) {
         image.animate({
@@ -118,14 +211,62 @@ track.animate({
       }
     }
 
+    /* --- Event Listeners for Dragging --- */
     window.onmousedown = e => handleOnDown(e);
     window.ontouchstart = e => handleOnDown(e.touches[0]);
-
     window.onmouseup = e => handleOnUp(e);
     window.ontouchend = e => handleOnUp(e.touches[0]);
-
     window.onmousemove = e => handleOnMove(e);
     window.ontouchmove = e => handleOnMove(e.touches[0]);
+
+
+    /* --- NEW SCRIPT FOR DETAILS VIEW --- */
+
+    const imageWrappers = document.querySelectorAll(".image-wrapper");
+    const detailsView = document.getElementById("details-view");
+    const backButton = document.getElementById("back-button");
+    const detailsTitle = document.getElementById("details-title");
+    const detailsDescription = document.getElementById("details-description");
+
+    imageWrappers.forEach(wrapper => {
+      wrapper.addEventListener("click", () => {
+        // Prevent click if it was a drag
+        if (track.dataset.mouseDownAt !== "0") return;
+
+        // Get text from data attributes
+        const title = wrapper.dataset.title;
+        const description = wrapper.dataset.description;
+
+        // Populate the details box
+        detailsTitle.textContent = title;
+        detailsDescription.textContent = description;
+
+        // Activate the details view
+        document.body.classList.add("details-active");
+        wrapper.classList.add("expanded");
+      });
+    });
+
+    // Function to hide details
+    const hideDetails = () => {
+      const expandedWrapper = document.querySelector(".image-wrapper.expanded");
+      document.body.classList.remove("details-active");
+      if (expandedWrapper) {
+        expandedWrapper.classList.remove("expanded");
+      }
+    }
+
+    // Add event listener to back button
+    backButton.addEventListener("click", hideDetails);
+    
+    // Optional: Add event listener to the overlay to also close the details
+    detailsView.addEventListener("click", (e) => {
+        // Only close if the click is on the dark overlay itself, not the content box
+        if (e.target === detailsView) {
+            hideDetails();
+        }
+    });
+
   </script>
 </body>
 </html>
