@@ -32,8 +32,8 @@
 
     /* Fade out the track when details are showing */
     body.details-active #image-track {
-        opacity: 0;
-        pointer-events: none;
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* --- Image with tint wrapper --- */
@@ -62,75 +62,75 @@
       inset: 0;
       background-color: var(--tint, transparent);
       mix-blend-mode: multiply;
-      opacity: 50.0; /* Corrected opacity value */
+      opacity: 1; /* Opacity should be between 0 and 1 */
       pointer-events: none;
     }
 
     /* --- Styles for Details View --- */
 
     #details-view {
-        position: fixed;
-        inset: 0;
-        background-color: rgba(0, 0, 0, 0.7);
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start; /* Align content to the left */
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.4s ease;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start; /* Align content to the left */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
     }
 
     body.details-active #details-view {
-        opacity: 1;
-        pointer-events: all;
+      opacity: 1;
+      pointer-events: all;
     }
 
     #details-content {
-        width: 45vw; /* Almost half the screen, with some padding */
-        height: 100vh;
-        background-color: #1a1a2e;
-        color: #f5e0dc;
-        padding: 5vmin;
-        box-sizing: border-box; /* Include padding in the width/height */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+      width: 45vw; /* Almost half the screen, with some padding */
+      height: 100vh;
+      background-color: #1a1a2e;
+      color: #f5e0dc;
+      padding: 5vmin;
+      box-sizing: border-box; /* Include padding in the width/height */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     #details-content h2 {
-        font-family: sans-serif;
-        font-size: 3rem;
-        margin-top: 0;
+      font-family: sans-serif;
+      font-size: 3rem;
+      margin-top: 0;
     }
 
     #details-content p {
-        font-family: serif;
-        font-size: 1.2rem;
-        line-height: 1.6;
+      font-family: serif;
+      font-size: 1.2rem;
+      line-height: 1.6;
     }
 
     #back-button {
-        background-color: #f5e0dc;
-        color: #11111b;
-        border: none;
-        padding: 15px 30px;
-        font-size: 1rem;
-        cursor: pointer;
-        border-radius: 5px;
-        margin-top: 2rem;
-        align-self: flex-start; /* Align button to the left */
+      background-color: #f5e0dc;
+      color: #11111b;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 2rem;
+      align-self: flex-start; /* Align button to the left */
     }
 
     /* This class will be added to the image that is clicked */
     .image-wrapper.expanded {
-        position: fixed;
-        width: 50vw;
-        height: 100vh;
-        top: 50%;
-        left: 75%; /* Center in the right half of the screen */
-        transform: translate(-50%, -50%);
-        z-index: 1001; /* Make sure it's above the details overlay */
+      width: 50vw;
+      height: 100vh;
+      top: 50%;
+      left: 75%; /* Center in the right half of the screen */
+      transform: translate(-50%, -50%);
+      z-index: 1001; /* Make sure it's above the details overlay */
+      /* Note: position: fixed is applied via JavaScript */
     }
   </style>
 </head>
@@ -175,48 +175,48 @@
     </div>
   </div>
 
-  <script>
+<script>
     const track = document.getElementById("image-track");
 
-    // A flag to track dragging state
     let isDragging = false;
 
     const handleOnDown = e => {
-      track.dataset.mouseDownAt = e.clientX;
-      // Reset the drag flag on every mouse down
-      isDragging = false;
+        track.dataset.mouseDownAt = e.clientX;
+        isDragging = false;
     }
 
     const handleOnUp = () => {
-      track.dataset.mouseDownAt = "0";
-      track.dataset.prevPercentage = track.dataset.percentage;
+        track.dataset.mouseDownAt = "0";
+        track.dataset.prevPercentage = track.dataset.percentage;
     }
 
     const handleOnMove = e => {
-      if (document.body.classList.contains("details-active")) return;
-      if (track.dataset.mouseDownAt === "0") return;
+        if (document.body.classList.contains("details-active")) return;
+        if (track.dataset.mouseDownAt === "0") return;
+        
+        // If the mouse has moved more than a few pixels, consider it a drag
+        const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX;
+        if (Math.abs(mouseDelta) > 5) {
+             isDragging = true;
+        }
 
-      // If we're moving the mouse, we're dragging
-      isDragging = true;
+        const maxDelta = window.innerWidth / 2;
 
-      const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX,
-        maxDelta = window.innerWidth / 2;
+        const percentage = (mouseDelta / maxDelta) * -100,
+            nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
+            nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
 
-      const percentage = (mouseDelta / maxDelta) * -100,
-        nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
-        nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
+        track.dataset.percentage = nextPercentage;
 
-      track.dataset.percentage = nextPercentage;
-
-      track.animate({
-        transform: `translate(${nextPercentage}%, -50%)`
-      }, { duration: 1200, fill: "forwards" });
-
-      for (const image of track.getElementsByTagName("img")) {
-        image.animate({
-          objectPosition: `${100 + nextPercentage}% center`
+        track.animate({
+            transform: `translate(${nextPercentage}%, -50%)`
         }, { duration: 1200, fill: "forwards" });
-      }
+
+        for (const image of track.getElementsByTagName("img")) {
+            image.animate({
+                objectPosition: `${100 + nextPercentage}% center`
+            }, { duration: 1200, fill: "forwards" });
+        }
     }
 
     /* --- Event Listeners for Dragging --- */
@@ -227,8 +227,8 @@
     window.onmousemove = e => handleOnMove(e);
     window.ontouchmove = e => handleOnMove(e.touches[0]);
 
-    /* --- SCRIPT FOR DETAILS VIEW --- */
 
+    /* --- SCRIPT FOR DETAILS VIEW --- */
     const imageWrappers = document.querySelectorAll(".image-wrapper");
     const detailsView = document.getElementById("details-view");
     const backButton = document.getElementById("back-button");
@@ -236,42 +236,66 @@
     const detailsDescription = document.getElementById("details-description");
 
     imageWrappers.forEach(wrapper => {
-      wrapper.addEventListener("click", () => {
-        // Prevent click if dragging occurred
-        if (isDragging) {
-          return;
-        }
+        wrapper.addEventListener("click", () => {
+            // Prevent click if dragging occurred
+            if (isDragging) {
+                return;
+            }
 
-        const title = wrapper.dataset.title;
-        const description = wrapper.dataset.description;
+            const rect = wrapper.getBoundingClientRect();
+            const title = wrapper.dataset.title;
+            const description = wrapper.dataset.description;
 
-        detailsTitle.textContent = title;
-        detailsDescription.textContent = description;
+            detailsTitle.textContent = title;
+            detailsDescription.textContent = description;
 
-        document.body.classList.add("details-active");
-        wrapper.classList.add("expanded");
-      });
+            // --- KEY CHANGES START HERE ---
+
+            // 1. Set inline styles to lock the element's current position and size
+            wrapper.style.position = 'fixed';
+            wrapper.style.top = `${rect.top}px`;
+            wrapper.style.left = `${rect.left}px`;
+            wrapper.style.width = `${rect.width}px`;
+            wrapper.style.height = `${rect.height}px`;
+            wrapper.style.zIndex = '1001'; // Ensure it's on top during transition
+
+            // 2. Wait for the next frame to apply classes, allowing the browser to process the inline styles
+            requestAnimationFrame(() => {
+                document.body.classList.add("details-active");
+                wrapper.classList.add("expanded");
+            });
+        });
     });
 
     // Function to hide details
     const hideDetails = () => {
-      const expandedWrapper = document.querySelector(".image-wrapper.expanded");
-      document.body.classList.remove("details-active");
-      if (expandedWrapper) {
+        const expandedWrapper = document.querySelector(".image-wrapper.expanded");
+        if (!expandedWrapper) return; // Exit if no expanded image found
+
+        document.body.classList.remove("details-active");
         expandedWrapper.classList.remove("expanded");
-      }
-    }
+        
+        // 3. Listen for the transition to end before cleaning up styles
+        expandedWrapper.addEventListener('transitionend', () => {
+            // Clean up all inline styles so it returns to its original state in the track
+            expandedWrapper.removeAttribute('style');
+            // Re-apply the original tint if it was removed
+            if (expandedWrapper.dataset.tint) {
+                 expandedWrapper.style.setProperty('--tint', expandedWrapper.dataset.tint);
+            }
+        }, { once: true }); // Use { once: true } so the listener removes itself after one run
+    };
 
     // Add event listener to back button
     backButton.addEventListener("click", hideDetails);
-    
+
     // Optional: Add event listener to the overlay to also close the details
     detailsView.addEventListener("click", (e) => {
-        // Only close if the click is on the dark overlay itself, not the content box
         if (e.target === detailsView) {
             hideDetails();
         }
     });
-  </script>
+
+</script>
 </body>
 </html>
