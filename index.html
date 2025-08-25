@@ -10,11 +10,8 @@
       background-color: #11111b;
       margin: 0;
       overflow: hidden;
-      /* Add a transition for when we fade the track out */
-      transition: opacity 0.5s ease;
     }
 
-    /* New class to apply when details view is active */
     body.details-active {
       overflow: hidden;
     }
@@ -26,24 +23,21 @@
       left: 50%;
       top: 50%;
       transform: translate(0%, -50%);
-      user-select: none; /* Prevent image highlighting */
+      user-select: none;
       transition: opacity 0.5s ease;
     }
 
-    /* Fade out the track when details are showing */
     body.details-active #image-track {
       opacity: 0;
       pointer-events: none;
     }
 
-    /* --- Image with tint wrapper --- */
     .image-wrapper {
       position: relative;
       width: 50vmin;
       height: 66vmin;
       overflow: hidden;
       cursor: pointer;
-      /* Add transition for the zoom effect */
       transition: transform 0.4s ease, width 0.4s ease, height 0.4s ease, left 0.4s ease, top 0.4s ease;
     }
 
@@ -55,18 +49,15 @@
       display: block;
     }
 
-    /* Tint overlay */
     .image-wrapper::after {
       content: "";
       position: absolute;
       inset: 0;
       background-color: var(--tint, transparent);
       mix-blend-mode: multiply;
-      opacity: 0.5; /* Opacity should be between 0 and 1 */
+      opacity: 0.5;
       pointer-events: none;
     }
-
-    /* --- Styles for Details View --- */
 
     #details-view {
       position: fixed;
@@ -75,7 +66,7 @@
       z-index: 1000;
       display: flex;
       align-items: center;
-      justify-content: flex-start; /* Align content to the left */
+      justify-content: flex-start;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s ease;
@@ -87,12 +78,12 @@
     }
 
     #details-content {
-      width: 45vw; /* Almost half the screen, with some padding */
+      width: 45vw;
       height: 100vh;
       background-color: #1a1a2e;
       color: #f5e0dc;
       padding: 5vmin;
-      box-sizing: border-box; /* Include padding in the width/height */
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -119,18 +110,16 @@
       cursor: pointer;
       border-radius: 5px;
       margin-top: 2rem;
-      align-self: flex-start; /* Align button to the left */
+      align-self: flex-start;
     }
 
-    /* This class will be added to the image that is clicked */
     .image-wrapper.expanded {
       width: 50vw;
       height: 100vh;
       top: 50%;
-      left: 75%; /* Center in the right half of the screen */
+      left: 75%;
       transform: translate(-50%, -50%);
-      z-index: 1001; /* Make sure it's above the details overlay */
-      /* Note: position: fixed is applied via JavaScript */
+      z-index: 1001;
     }
   </style>
 </head>
@@ -138,31 +127,23 @@
   <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
 
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Jane Eyre" data-description="A detailed look into the final moments of a grand adventure. This piece captures the serene yet powerful emotions of reaching a long-sought destination.">
-      <img src="JE2025.jpg" draggable="false" />
+      <img src="https://images.unsplash.com/photo-1579532582937-16c141df3081?w=800" draggable="false" />
     </div>
 
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="The Art of Hearing Heartbeats" data-description="An exploration of abstract forms and colors, representing the chaotic beauty of a creative mind at work. Each stroke is intentional and full of meaning.">
-      <img src="AHH2.png" draggable="false" />
+      <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=800" draggable="false" />
     </div>
 
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Green Earth" data-description="This image is a tribute to the natural world. It highlights the intricate patterns found in nature and serves as a reminder of the planet's fragile beauty.">
-      <img src="GE1.png" draggable="false" />
+      <img src="https://images.unsplash.com/photo-1472148083604-64f1089282b8?w=800" draggable="false" />
     </div>
-
+    
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Profile Portrait" data-description="A classic portrait study focusing on light, shadow, and expression. The subject's gaze tells a story of resilience and introspection.">
-      <img src="PP1.png" draggable="false" />
+      <img src="https://picsum.photos/seed/picsum4/800/1200" draggable="false" />
     </div>
 
     <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Mountain View" data-description="A majestic mountain range captured at dawn. The light creates long shadows and highlights the rugged textures of the landscape.">
       <img src="https://picsum.photos/seed/picsum1/800/1200" draggable="false" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="City Lights" data-description="An aerial view of a bustling city at night, with streets illuminated by countless lights, creating a vibrant, energetic scene.">
-      <img src="https://picsum.photos/seed/picsum2/800/1200" draggable="false" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Coastal Serenity" data-description="Calm waves gently washing over a sandy shore during sunset, painting the sky in warm hues of orange and purple.">
-      <img src="https://picsum.photos/seed/picsum3/800/1200" draggable="false" />
     </div>
 
   </div>
@@ -177,31 +158,38 @@
 
 <script>
     const track = document.getElementById("image-track");
+    const imageWrappers = document.querySelectorAll(".image-wrapper");
+    const detailsView = document.getElementById("details-view");
+    const backButton = document.getElementById("back-button");
+    const detailsTitle = document.getElementById("details-title");
+    const detailsDescription = document.getElementById("details-description");
 
+    // --- State for dragging ---
     let isDragging = false;
     let mouseDownAt = 0;
     let prevPercentage = 0;
+    
+    // --- State for animation/DOM manipulation ---
+    let animationState = {
+        originalParent: null,
+        nextSibling: null,
+    };
 
     const handleOnDown = e => {
         mouseDownAt = e.clientX;
-        isDragging = false; // Reset on every mouse down
+        isDragging = false;
     }
 
     const handleOnUp = () => {
-        mouseDownAt = 0; // Use a number, not a string "0"
+        mouseDownAt = 0;
         prevPercentage = parseFloat(track.dataset.percentage || 0);
     }
 
     const handleOnMove = e => {
-        if (mouseDownAt === 0) return;
-        if (document.body.classList.contains("details-active")) return;
+        if (mouseDownAt === 0 || document.body.classList.contains("details-active")) return;
         
         const mouseDelta = mouseDownAt - e.clientX;
-        
-        // Only register a drag after moving a certain threshold (e.g., 5 pixels)
-        if (Math.abs(mouseDelta) > 5) {
-             isDragging = true;
-        }
+        if (Math.abs(mouseDelta) > 5) isDragging = true;
 
         const maxDelta = window.innerWidth / 2;
         const percentage = (mouseDelta / maxDelta) * -100;
@@ -209,19 +197,13 @@
         const nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
 
         track.dataset.percentage = nextPercentage;
-
-        track.animate({
-            transform: `translate(${nextPercentage}%, -50%)`
-        }, { duration: 1200, fill: "forwards" });
+        track.style.transform = `translate(${nextPercentage}%, -50%)`;
 
         for (const image of track.getElementsByTagName("img")) {
-            image.animate({
-                objectPosition: `${100 + nextPercentage}% center`
-            }, { duration:1200, fill: "forwards" });
+            image.style.objectPosition = `${100 + nextPercentage}% center`;
         }
     }
 
-    /* --- Event Listeners for Dragging --- */
     window.addEventListener('mousedown', e => handleOnDown(e));
     window.addEventListener('touchstart', e => handleOnDown(e.touches[0]));
     window.addEventListener('mouseup', e => handleOnUp(e));
@@ -229,34 +211,33 @@
     window.addEventListener('mousemove', e => handleOnMove(e));
     window.addEventListener('touchmove', e => handleOnMove(e.touches[0]));
 
-
-    /* --- SCRIPT FOR DETAILS VIEW --- */
-    const imageWrappers = document.querySelectorAll(".image-wrapper");
-    const detailsView = document.getElementById("details-view");
-    const backButton = document.getElementById("back-button");
-    const detailsTitle = document.getElementById("details-title");
-    const detailsDescription = document.getElementById("details-description");
-
     imageWrappers.forEach(wrapper => {
         wrapper.addEventListener("click", () => {
             if (isDragging) return;
 
+            // --- THIS IS THE NEW LOGIC ---
+            // 1. Store original position in the DOM
+            animationState.originalParent = wrapper.parentElement;
+            animationState.nextSibling = wrapper.nextElementSibling;
+            
             const rect = wrapper.getBoundingClientRect();
-            const title = wrapper.dataset.title;
-            const description = wrapper.dataset.description;
+            
+            // 2. Move element to the body to escape parent's opacity
+            document.body.appendChild(wrapper);
 
-            detailsTitle.textContent = title;
-            detailsDescription.textContent = description;
+            detailsTitle.textContent = wrapper.dataset.title;
+            detailsDescription.textContent = wrapper.dataset.description;
 
-            // Set inline styles to lock the element's current position and size
+            // 3. Lock it in place with inline styles before animating
             wrapper.style.position = 'fixed';
             wrapper.style.top = `${rect.top}px`;
             wrapper.style.left = `${rect.left}px`;
             wrapper.style.width = `${rect.width}px`;
             wrapper.style.height = `${rect.height}px`;
             wrapper.style.zIndex = '1001';
+            wrapper.style.margin = '0'; // Important to override gap
 
-            // Use a timeout to allow the browser to apply the initial state
+            // 4. Trigger the animation
             setTimeout(() => {
                 document.body.classList.add("details-active");
                 wrapper.classList.add("expanded");
@@ -264,23 +245,24 @@
         });
     });
 
-    // Function to hide details
     const hideDetails = () => {
         const expandedWrapper = document.querySelector(".image-wrapper.expanded");
         if (!expandedWrapper) return;
 
-        // Add a handler that will clean up styles *after* the transition ends
         const cleanup = () => {
-            // Instead of removing the whole style attribute, we only remove the
-            // properties we added, preserving the original --tint.
-            expandedWrapper.style.removeProperty('position');
-            expandedWrapper.style.removeProperty('top');
-            expandedWrapper.style.removeProperty('left');
-            expandedWrapper.style.removeProperty('width');
-            expandedWrapper.style.removeProperty('height');
-            expandedWrapper.style.removeProperty('z-index');
-
             expandedWrapper.removeEventListener('transitionend', cleanup);
+            
+            // Clean up all inline styles
+            expandedWrapper.removeAttribute('style');
+            
+            // 5. Move the element back to its original spot in the DOM
+            if (animationState.originalParent) {
+                animationState.originalParent.insertBefore(expandedWrapper, animationState.nextSibling);
+            }
+            
+            // Reset state
+            animationState.originalParent = null;
+            animationState.nextSibling = null;
         };
         expandedWrapper.addEventListener('transitionend', cleanup);
 
@@ -288,14 +270,9 @@
         expandedWrapper.classList.remove("expanded");
     };
 
-    // Add event listener to back button
     backButton.addEventListener("click", hideDetails);
-
-    // Optional: Add event listener to the overlay to also close the details
-    detailsView.addEventListener("click", (e) => {
-        if (e.target === detailsView) {
-            hideDetails();
-        }
+    detailsView.addEventListener("click", e => {
+        if (e.target === detailsView) hideDetails();
     });
 </script>
 </body>
