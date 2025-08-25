@@ -62,7 +62,7 @@
       inset: 0;
       background-color: var(--tint, transparent);
       mix-blend-mode: multiply;
-      opacity: 1; /* Opacity should be between 0 and 1 */
+      opacity: 0.5; /* Opacity should be between 0 and 1 */
       pointer-events: none;
     }
 
@@ -179,32 +179,34 @@
     const track = document.getElementById("image-track");
 
     let isDragging = false;
+    let mouseDownAt = 0;
+    let prevPercentage = 0;
 
     const handleOnDown = e => {
-        track.dataset.mouseDownAt = e.clientX;
-        isDragging = false;
+        mouseDownAt = e.clientX;
+        isDragging = false; // Reset on every mouse down
     }
 
     const handleOnUp = () => {
-        track.dataset.mouseDownAt = "0";
-        track.dataset.prevPercentage = track.dataset.percentage;
+        mouseDownAt = 0; // Use a number, not a string "0"
+        prevPercentage = parseFloat(track.dataset.percentage || 0);
     }
 
     const handleOnMove = e => {
+        if (mouseDownAt === 0) return;
         if (document.body.classList.contains("details-active")) return;
-        if (track.dataset.mouseDownAt === "0") return;
         
-        // If the mouse has moved more than a few pixels, consider it a drag
-        const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX;
+        const mouseDelta = mouseDownAt - e.clientX;
+        
+        // Only register a drag after moving a certain threshold (e.g., 5 pixels)
         if (Math.abs(mouseDelta) > 5) {
              isDragging = true;
         }
 
         const maxDelta = window.innerWidth / 2;
-
-        const percentage = (mouseDelta / maxDelta) * -100,
-            nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
-            nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
+        const percentage = (mouseDelta / maxDelta) * -100;
+        const nextPercentageUnconstrained = prevPercentage + percentage;
+        const nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
 
         track.dataset.percentage = nextPercentage;
 
@@ -215,17 +217,17 @@
         for (const image of track.getElementsByTagName("img")) {
             image.animate({
                 objectPosition: `${100 + nextPercentage}% center`
-            }, { duration: 1200, fill: "forwards" });
+            }, { duration:1200, fill: "forwards" });
         }
     }
 
     /* --- Event Listeners for Dragging --- */
-    window.onmousedown = e => handleOnDown(e);
-    window.ontouchstart = e => handleOnDown(e.touches[0]);
-    window.onmouseup = e => handleOnUp(e);
-    window.ontouchend = e => handleOnUp(e.touches[0]);
-    window.onmousemove = e => handleOnMove(e);
-    window.ontouchmove = e => handleOnMove(e.touches[0]);
+    window.addEventListener('mousedown', e => handleOnDown(e));
+    window.addEventListener('touchstart', e => handleOnDown(e.touches[0]));
+    window.addEventListener('mouseup', e => handleOnUp(e));
+    window.addEventListener('touchend', e => handleOnUp(e.touches[0]));
+    window.addEventListener('mousemove', e => handleOnMove(e));
+    window.addEventListener('touchmove', e => handleOnMove(e.touches[0]));
 
 
     /* --- SCRIPT FOR DETAILS VIEW --- */
@@ -237,10 +239,7 @@
 
     imageWrappers.forEach(wrapper => {
         wrapper.addEventListener("click", () => {
-            // Prevent click if dragging occurred
-            if (isDragging) {
-                return;
-            }
+            if (isDragging) return;
 
             const rect = wrapper.getBoundingClientRect();
             const title = wrapper.dataset.title;
@@ -249,41 +248,44 @@
             detailsTitle.textContent = title;
             detailsDescription.textContent = description;
 
-            // --- KEY CHANGES START HERE ---
-
-            // 1. Set inline styles to lock the element's current position and size
+            // Set inline styles to lock the element's current position and size
             wrapper.style.position = 'fixed';
             wrapper.style.top = `${rect.top}px`;
             wrapper.style.left = `${rect.left}px`;
             wrapper.style.width = `${rect.width}px`;
             wrapper.style.height = `${rect.height}px`;
-            wrapper.style.zIndex = '1001'; // Ensure it's on top during transition
+            wrapper.style.zIndex = '1001';
 
-            // 2. Wait for the next frame to apply classes, allowing the browser to process the inline styles
-            requestAnimationFrame(() => {
+            // Use a timeout to allow the browser to apply the initial state
+            setTimeout(() => {
                 document.body.classList.add("details-active");
                 wrapper.classList.add("expanded");
-            });
+            }, 10);
         });
     });
 
     // Function to hide details
     const hideDetails = () => {
         const expandedWrapper = document.querySelector(".image-wrapper.expanded");
-        if (!expandedWrapper) return; // Exit if no expanded image found
+        if (!expandedWrapper) return;
+
+        // Add a handler that will clean up styles *after* the transition ends
+        const cleanup = () => {
+            // Instead of removing the whole style attribute, we only remove the
+            // properties we added, preserving the original --tint.
+            expandedWrapper.style.removeProperty('position');
+            expandedWrapper.style.removeProperty('top');
+            expandedWrapper.style.removeProperty('left');
+            expandedWrapper.style.removeProperty('width');
+            expandedWrapper.style.removeProperty('height');
+            expandedWrapper.style.removeProperty('z-index');
+
+            expandedWrapper.removeEventListener('transitionend', cleanup);
+        };
+        expandedWrapper.addEventListener('transitionend', cleanup);
 
         document.body.classList.remove("details-active");
         expandedWrapper.classList.remove("expanded");
-        
-        // 3. Listen for the transition to end before cleaning up styles
-        expandedWrapper.addEventListener('transitionend', () => {
-            // Clean up all inline styles so it returns to its original state in the track
-            expandedWrapper.removeAttribute('style');
-            // Re-apply the original tint if it was removed
-            if (expandedWrapper.dataset.tint) {
-                 expandedWrapper.style.setProperty('--tint', expandedWrapper.dataset.tint);
-            }
-        }, { once: true }); // Use { once: true } so the listener removes itself after one run
     };
 
     // Add event listener to back button
@@ -295,7 +297,6 @@
             hideDetails();
         }
     });
-
 </script>
 </body>
 </html>
