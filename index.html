@@ -1,272 +1,301 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Book Club</title>
-  <style>
-    body {
-      height: 100vh;
-      width: 100vw;
-      background-color: #11111b;
-      margin: 0;
-      overflow: hidden;
-    }
+  <meta charset="UTF-8">
+  <title>Book Club</title>
+  <style>
+    body {
+      height: 100vh;
+      width: 100vw;
+      background-color: #11111b;
+      margin: 0;
+      overflow: hidden;
+      /* Add a transition for when we fade the track out */
+      transition: opacity 0.5s ease;
+    }
 
-    body.details-active {
-      overflow: hidden;
-    }
+    /* New class to apply when details view is active */
+    body.details-active {
+      overflow: hidden;
+    }
 
-    #image-track {
-      display: flex;
-      gap: 4vmin;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(0%, -50%);
-      user-select: none;
-      transition: opacity 0.5s ease;
-    }
+    #image-track {
+      display: flex;
+      gap: 4vmin;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(0%, -50%);
+      user-select: none; /* Prevent image highlighting */
+      transition: opacity 0.5s ease;
+    }
 
-    body.details-active #image-track {
-      opacity: 0;
-      pointer-events: none;
-    }
+    /* Fade out the track when details are showing */
+    body.details-active #image-track {
+      opacity: 0;
+      pointer-events: none;
+    }
 
-    .image-wrapper {
-      position: relative;
-      width: 50vmin;
-      height: 66vmin;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.4s ease, width 0.4s ease, height 0.4s ease, left 0.4s ease, top 0.4s ease;
-    }
+    /* --- Image with tint wrapper --- */
+    .image-wrapper {
+      position: relative;
+      width: 50vmin;
+      height: 66vmin;
+      overflow: hidden;
+      cursor: pointer;
+      /* Add transition for the zoom effect */
+      transition: transform 0.4s ease, width 0.4s ease, height 0.4s ease, left 0.4s ease, top 0.4s ease;
+    }
 
-    .image-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: 100% center;
-      display: block;
-    }
+    .image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 100% center;
+      display: block;
+    }
 
-    .image-wrapper::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-color: var(--tint, transparent);
-      mix-blend-mode: multiply;
-      opacity: 0.5;
-      pointer-events: none;
-    }
+    /* Tint overlay */
+    .image-wrapper::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: var(--tint, transparent);
+      mix-blend-mode: multiply;
+      opacity: 0.5; /* Opacity should be between 0 and 1 */
+      pointer-events: none;
+    }
 
-    #details-view {
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
+    /* --- Styles for Details View --- */
 
-    body.details-active #details-view {
-      opacity: 1;
-      pointer-events: all;
-    }
+    #details-view {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start; /* Align content to the left */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
 
-    #details-content {
-      width: 45vw;
-      height: 100vh;
-      background-color: #1a1a2e;
-      color: #f5e0dc;
-      padding: 5vmin;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+    body.details-active #details-view {
+      opacity: 1;
+      pointer-events: all;
+    }
 
-    #details-content h2 {
-      font-family: sans-serif;
-      font-size: 3rem;
-      margin-top: 0;
-    }
+    #details-content {
+      width: 100vw; /* Almost half the screen, with some padding */
+      height: 100vh;
+      background-color: #1a1a2e;
+      color: #f5e0dc;
+      padding: 5vmin;
+      box-sizing: border-box; /* Include padding in the width/height */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-    #details-content p {
-      font-family: serif;
-      font-size: 1.2rem;
-      line-height: 1.6;
-    }
+    #details-content h2 {
+      font-family: sans-serif;
+      font-size: 3rem;
+      margin-top: 0;
+    }
 
-    #back-button {
-      background-color: #f5e0dc;
-      color: #11111b;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 5px;
-      margin-top: 2rem;
-      align-self: flex-start;
-    }
-    
-    /* --- THIS IS THE CORRECTED CSS RULE --- */
-    .image-wrapper.expanded {
-      width: 50vw !important;
-      height: 100vh !important;
-      top: 50% !important;
-      left: 75% !important;
-      transform: translate(-50%, -50%) !important;
-      z-index: 1001;
-    }
-  </style>
+    #details-content p {
+      font-family: serif;
+      font-size: 1.2rem;
+      line-height: 1.6;
+    }
+
+    #back-button {
+      background-color: #f5e0dc;
+      color: #11111b;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 2rem;
+      align-self: flex-start; /* Align button to the left */
+    }
+
+    /* This class will be added to the image that is clicked */
+    .image-wrapper.expanded {
+      width: 50vw;
+      height: 100vh;
+      top: 50%;
+      left: 75%; /* Center in the right half of the screen */
+      transform: translate(-50%, -50%);
+      z-index: 1003; /* Make sure it's above the details overlay */
+      /* Note: position: fixed is applied via JavaScript */
+    }
+  </style>
 </head>
 <body>
-  <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
+  <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Jane Eyre" data-description="A detailed look into the final moments of a grand adventure. This piece captures the serene yet powerful emotions of reaching a long-sought destination.">
-      <img src="https://images.unsplash.com/photo-1579532582937-16c141df3081?w=800" draggable="false" alt="Jane Eyre" />
-    </div>
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Jane Eyre" data-description="A detailed look into the final moments of a grand adventure. This piece captures the serene yet powerful emotions of reaching a long-sought destination.">
+      <img src="JE2025.jpg" draggable="false" />
+    </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="The Art of Hearing Heartbeats" data-description="An exploration of abstract forms and colors, representing the chaotic beauty of a creative mind at work. Each stroke is intentional and full of meaning.">
-      <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=800" draggable="false" alt="The Art of Hearing Heartbeats" />
-    </div>
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="The Art of Hearing Heartbeats" data-description="An exploration of abstract forms and colors, representing the chaotic beauty of a creative mind at work. Each stroke is intentional and full of meaning.">
+      <img src="AHH2.png" draggable="false" />
+    </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Green Earth" data-description="This image is a tribute to the natural world. It highlights the intricate patterns found in nature and serves as a reminder of the planet's fragile beauty.">
-      <img src="https://images.unsplash.com/photo-1472148083604-64f1089282b8?w=800" draggable="false" alt="Green Earth" />
-    </div>
-    
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Profile Portrait" data-description="A classic portrait study focusing on light, shadow, and expression. The subject's gaze tells a story of resilience and introspection.">
-      <img src="https://picsum.photos/seed/picsum4/800/1200" draggable="false" alt="Profile Portrait" />
-    </div>
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Green Earth" data-description="This image is a tribute to the natural world. It highlights the intricate patterns found in nature and serves as a reminder of the planet's fragile beauty.">
+      <img src="GE1.png" draggable="false" />
+    </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Mountain View" data-description="A majestic mountain range captured at dawn. The light creates long shadows and highlights the rugged textures of the landscape.">
-      <img src="https://picsum.photos/seed/picsum1/800/1200" draggable="false" alt="Mountain View" />
-    </div>
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Profile Portrait" data-description="A classic portrait study focusing on light, shadow, and expression. The subject's gaze tells a story of resilience and introspection.">
+      <img src="PP1.png" draggable="false" />
+    </div>
 
-  </div>
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Mountain View" data-description="A majestic mountain range captured at dawn. The light creates long shadows and highlights the rugged textures of the landscape.">
+      <img src="https://picsum.photos/seed/picsum1/800/1200" draggable="false" />
+    </div>
 
-  <div id="details-view">
-    <div id="details-content">
-      <h2 id="details-title">Image Title</h2>
-      <p id="details-description">Image description will appear here.</p>
-      <button id="back-button">Go Back</button>
-    </div>
-  </div>
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="City Lights" data-description="An aerial view of a bustling city at night, with streets illuminated by countless lights, creating a vibrant, energetic scene.">
+      <img src="https://picsum.photos/seed/picsum2/800/1200" draggable="false" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Coastal Serenity" data-description="Calm waves gently washing over a sandy shore during sunset, painting the sky in warm hues of orange and purple.">
+      <img src="https://picsum.photos/seed/picsum3/800/1200" draggable="false" />
+    </div>
+
+  </div>
+
+  <div id="details-view">
+    <div id="details-content">
+      <h2 id="details-title">Image Title</h2>
+      <p id="details-description">Image description will appear here.</p>
+      <button id="back-button">Go Back</button>
+    </div>
+  </div>
 
 <script>
-    const track = document.getElementById("image-track");
-    const imageWrappers = document.querySelectorAll(".image-wrapper");
-    const detailsView = document.getElementById("details-view");
-    const backButton = document.getElementById("back-button");
-    const detailsTitle = document.getElementById("details-title");
-    const detailsDescription = document.getElementById("details-description");
+    const track = document.getElementById("image-track");
 
-    // --- State for dragging ---
-    let isDragging = false;
-    let mouseDownAt = 0;
-    let prevPercentage = 0;
-    
-    // --- State for animation/DOM manipulation ---
-    let animationState = {
-        originalParent: null,
-        nextSibling: null,
-    };
+    let isDragging = false;
 
-    const handleOnDown = e => {
-        mouseDownAt = e.clientX;
-        isDragging = false;
-    }
+    const handleOnDown = e => {
+        track.dataset.mouseDownAt = e.clientX;
+        isDragging = false;
+    }
 
-    const handleOnUp = () => {
-        mouseDownAt = 0;
-        prevPercentage = parseFloat(track.dataset.percentage || 0);
-    }
+    const handleOnUp = () => {
+        track.dataset.mouseDownAt = "0";
+        track.dataset.prevPercentage = track.dataset.percentage;
+    }
 
-    const handleOnMove = e => {
-        if (mouseDownAt === 0 || document.body.classList.contains("details-active")) return;
-        
-        const mouseDelta = mouseDownAt - e.clientX;
-        if (Math.abs(mouseDelta) > 5) isDragging = true;
+    const handleOnMove = e => {
+        if (document.body.classList.contains("details-active")) return;
+        if (track.dataset.mouseDownAt === "0") return;
+        
+        // If the mouse has moved more than a few pixels, consider it a drag
+        const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX;
+        if (Math.abs(mouseDelta) > 5) {
+             isDragging = true;
+        }
 
-        const maxDelta = window.innerWidth / 2;
-        const percentage = (mouseDelta / maxDelta) * -100;
-        const nextPercentageUnconstrained = prevPercentage + percentage;
-        const nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
+        const maxDelta = window.innerWidth / 2;
 
-        track.dataset.percentage = nextPercentage;
-        track.style.transform = `translate(${nextPercentage}%, -50%)`;
+        const percentage = (mouseDelta / maxDelta) * -100,
+            nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
+            nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
 
-        for (const image of track.getElementsByTagName("img")) {
-            image.style.objectPosition = `${100 + nextPercentage}% center`;
-        }
-    }
+        track.dataset.percentage = nextPercentage;
 
-    window.addEventListener('mousedown', e => handleOnDown(e));
-    window.addEventListener('touchstart', e => handleOnDown(e.touches[0]));
-    window.addEventListener('mouseup', handleOnUp);
-    window.addEventListener('touchend', handleOnUp); // --- CORRECTED JS
-    window.addEventListener('mousemove', e => handleOnMove(e));
-    window.addEventListener('touchmove', e => handleOnMove(e.touches[0]));
+        track.animate({
+            transform: `translate(${nextPercentage}%, -50%)`
+        }, { duration: 1200, fill: "forwards" });
 
-    imageWrappers.forEach(wrapper => {
-        wrapper.addEventListener("click", () => {
-            if (isDragging) return;
+        for (const image of track.getElementsByTagName("img")) {
+            image.animate({
+                objectPosition: `${100 + nextPercentage}% center`
+            }, { duration: 1200, fill: "forwards" });
+        }
+    }
 
-            animationState.originalParent = wrapper.parentElement;
-            animationState.nextSibling = wrapper.nextElementSibling;
-            
-            const rect = wrapper.getBoundingClientRect();
-            
-            document.body.appendChild(wrapper);
+    /* --- Event Listeners for Dragging --- */
+    window.onmousedown = e => handleOnDown(e);
+    window.ontouchstart = e => handleOnDown(e.touches[0]);
+    window.onmouseup = e => handleOnUp(e);
+    window.ontouchend = e => handleOnUp(e.touches[0]);
+    window.onmousemove = e => handleOnMove(e);
+    window.ontouchmove = e => handleOnMove(e.touches[0]);
 
-            detailsTitle.textContent = wrapper.dataset.title;
-            detailsDescription.textContent = wrapper.dataset.description;
 
-            wrapper.style.position = 'fixed';
-            wrapper.style.top = `${rect.top}px`;
-            wrapper.style.left = `${rect.left}px`;
-            wrapper.style.width = `${rect.width}px`;
-            wrapper.style.height = `${rect.height}px`;
-            wrapper.style.zIndex = '1001';
-            wrapper.style.margin = '0';
+    /* --- SCRIPT FOR DETAILS VIEW --- */
+    const imageWrappers = document.querySelectorAll(".image-wrapper");
+    const detailsView = document.getElementById("details-view");
+    const backButton = document.getElementById("back-button");
+    const detailsTitle = document.getElementById("details-title");
+    const detailsDescription = document.getElementById("details-description");
 
-            setTimeout(() => {
-                document.body.classList.add("details-active");
-                wrapper.classList.add("expanded");
-            }, 10);
-        });
-    });
+    imageWrappers.forEach(wrapper => {
+        wrapper.addEventListener("click", () => {
+            // Prevent click if dragging occurred
+            if (isDragging) {
+                return;
+            }
 
-    const hideDetails = () => {
-        const expandedWrapper = document.querySelector(".image-wrapper.expanded");
-        if (!expandedWrapper) return;
+            const rect = wrapper.getBoundingClientRect();
+            const title = wrapper.dataset.title;
+            const description = wrapper.dataset.description;
 
-        const cleanup = () => {
-            expandedWrapper.removeEventListener('transitionend', cleanup);
-            
-            expandedWrapper.removeAttribute('style');
-            
-            if (animationState.originalParent) {
-                animationState.originalParent.insertBefore(expandedWrapper, animationState.nextSibling);
-            }
-            
-            animationState.originalParent = null;
-            animationState.nextSibling = null;
-        };
-        expandedWrapper.addEventListener('transitionend', cleanup);
+            detailsTitle.textContent = title;
+            detailsDescription.textContent = description;
 
-        document.body.classList.remove("details-active");
-        expandedWrapper.classList.remove("expanded");
-    };
+            // --- KEY CHANGES START HERE ---
 
-    backButton.addEventListener("click", hideDetails);
-    detailsView.addEventListener("click", e => {
-        if (e.target === detailsView) hideDetails();
-    });
+            // 1. Set inline styles to lock the element's current position and size
+            wrapper.style.position = 'fixed';
+            wrapper.style.top = `${rect.top}px`;
+            wrapper.style.left = `${rect.left}px`;
+            wrapper.style.width = `${rect.width}px`;
+            wrapper.style.height = `${rect.height}px`;
+            wrapper.style.zIndex = '1001'; // Ensure it's on top during transition
+
+            // 2. Wait for the next frame to apply classes, allowing the browser to process the inline styles
+            requestAnimationFrame(() => {
+                document.body.classList.add("details-active");
+                wrapper.classList.add("expanded");
+            });
+        });
+    });
+
+    // Function to hide details
+    const hideDetails = () => {
+        const expandedWrapper = document.querySelector(".image-wrapper.expanded");
+        if (!expandedWrapper) return; // Exit if no expanded image found
+
+        document.body.classList.remove("details-active");
+        expandedWrapper.classList.remove("expanded");
+        
+        // 3. Listen for the transition to end before cleaning up styles
+        expandedWrapper.addEventListener('transitionend', () => {
+            // Clean up all inline styles so it returns to its original state in the track
+            expandedWrapper.removeAttribute('style');
+            // Re-apply the original tint if it was removed
+            if (expandedWrapper.dataset.tint) {
+                 expandedWrapper.style.setProperty('--tint', expandedWrapper.dataset.tint);
+            }
+        }, { once: true }); // Use { once: true } so the listener removes itself after one run
+    };
+
+    // Add event listener to back button
+    backButton.addEventListener("click", hideDetails);
+
+    // Optional: Add event listener to the overlay to also close the details
+    detailsView.addEventListener("click", (e) => {
+        if (e.target === detailsView) {
+            hideDetails();
+        }
+    });
+
 </script>
 </body>
 </html>
