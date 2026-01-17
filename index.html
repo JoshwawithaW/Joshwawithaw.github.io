@@ -1,24 +1,27 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Book Club</title>
   <style>
+    :root {
+      --bg-color: #11111b;
+      --card-bg: #1a1a2e;
+      --text-color: #f5e0dc;
+      --tint-color: #f5e0dc;
+    }
+
     body {
       height: 100vh;
       width: 100vw;
-      background-color: #11111b;
+      background-color: var(--bg-color);
       margin: 0;
       overflow: hidden;
-      /* Add a transition for when we fade the track out */
-      transition: opacity 0.5s ease;
+      font-family: sans-serif;
     }
 
-    /* New class to apply when details view is active */
-    body.details-active {
-      overflow: hidden;
-    }
-
+    /* --- Track & Scroll --- */
     #image-track {
       display: flex;
       gap: 4vmin;
@@ -26,56 +29,65 @@
       left: 50%;
       top: 50%;
       transform: translate(0%, -50%);
-      user-select: none; /* Prevent image highlighting */
-      transition: opacity 0.5s ease;
+      user-select: none;
+      /* Smooth fade when details open */
+      transition: opacity 0.5s ease; 
     }
 
-    /* Fade out the track when details are showing */
     body.details-active #image-track {
       opacity: 0;
       pointer-events: none;
     }
 
-    /* --- Image with tint wrapper --- */
+    /* --- Image Cards --- */
     .image-wrapper {
       position: relative;
-      width: 50vmin;
-      height: 66vmin;
+      width: 40vmin;
+      height: 56vmin;
       overflow: hidden;
       cursor: pointer;
-      /* Add transition for the zoom effect */
-      transition: transform 0.4s ease, width 0.4s ease, height 0.4s ease, left 0.4s ease, top 0.4s ease;
+      /* Transitions for the 'expand' animation */
+      transition: 
+        transform 0.5s cubic-bezier(0.2, 0, 0.2, 1),
+        width 0.5s cubic-bezier(0.2, 0, 0.2, 1),
+        height 0.5s cubic-bezier(0.2, 0, 0.2, 1),
+        top 0.5s cubic-bezier(0.2, 0, 0.2, 1),
+        left 0.5s cubic-bezier(0.2, 0, 0.2, 1);
     }
 
     .image-wrapper img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 100% center;
+      object-position: 100% center; /* Starts aligned right for parallax effect */
       display: block;
     }
 
-    /* Tint overlay */
+    /* Tint Overlay */
     .image-wrapper::after {
       content: "";
       position: absolute;
       inset: 0;
       background-color: var(--tint, transparent);
       mix-blend-mode: multiply;
-      opacity: 0.5; /* Opacity should be between 0 and 1 */
+      opacity: 0.4;
       pointer-events: none;
+      transition: opacity 0.4s ease;
     }
 
-    /* --- Styles for Details View --- */
+    .image-wrapper:hover::after {
+      opacity: 0.1; /* Lighten tint on hover */
+    }
 
+    /* --- Details Overlay --- */
     #details-view {
       position: fixed;
       inset: 0;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0, 0, 0, 0.85);
       z-index: 1000;
       display: flex;
       align-items: center;
-      justify-content: flex-start; /* Align content to the left */
+      justify-content: flex-start; /* Content on the left */
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s ease;
@@ -87,215 +99,314 @@
     }
 
     #details-content {
-      width: 100vw; /* Almost half the screen, with some padding */
+      width: 50vw; /* Takes up left half */
       height: 100vh;
-      background-color: #1a1a2e;
-      color: #f5e0dc;
-      padding: 5vmin;
-      box-sizing: border-box; /* Include padding in the width/height */
+      color: var(--text-color);
+      padding: 8vmin;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      /* Slide in effect for text */
+      transform: translateX(-20px);
+      transition: transform 0.5s ease;
+    }
+
+    body.details-active #details-content {
+      transform: translateX(0);
     }
 
     #details-content h2 {
-      font-family: sans-serif;
-      font-size: 3rem;
-      margin-top: 0;
+      font-size: 3.5rem;
+      margin: 0 0 1rem 0;
+      font-weight: 700;
+      line-height: 1.1;
     }
 
     #details-content p {
       font-family: serif;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       line-height: 1.6;
+      max-width: 600px;
+      opacity: 0.9;
     }
 
     #back-button {
-      background-color: #f5e0dc;
-      color: #11111b;
+      background-color: var(--text-color);
+      color: var(--bg-color);
       border: none;
-      padding: 15px 30px;
+      padding: 12px 24px;
       font-size: 1rem;
+      font-weight: bold;
       cursor: pointer;
-      border-radius: 5px;
+      border-radius: 4px;
       margin-top: 2rem;
-      align-self: flex-start; /* Align button to the left */
+      align-self: flex-start;
+      transition: transform 0.2s ease;
     }
 
-    /* This class will be added to the image that is clicked */
+    #back-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* --- Expanded State (Added via JS) --- */
     .image-wrapper.expanded {
-      width: 50vw;
-      height: 100vh;
-      top: 50%;
-      left: 75%; /* Center in the right half of the screen */
-      transform: translate(-50%, -50%);
-      z-index: 1003; /* Make sure it's above the details overlay */
-      /* Note: position: fixed is applied via JavaScript */
+      /* Fixed positioning logic handled in JS, these are target values */
+      width: 40vw;
+      height: 80vh; 
+      z-index: 1003;
+      /* Center in the right half of the screen */
+      top: 50% !important;
+      left: 75% !important; 
+      transform: translate(-50%, -50%) !important;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    /* Remove tint when expanded so we see the full cover clearly */
+    .image-wrapper.expanded::after {
+      opacity: 0;
     }
   </style>
 </head>
 <body>
-  <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0">
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Jane Eyre" data-description="This is one of my favorite books. It is the firt female contempary novel i have read that activiely feels like it is trying to challenge something">
-      <img src="JE2025.jpg" draggable="false" />
+  <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="Jane Eyre" 
+         data-description="A novel that challenges the conventions of its time, presenting a fierce, independent heroine who refuses to compromise her integrity for love or societal acceptance.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Jane+Eyre" draggable="false" alt="Jane Eyre Cover" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="The Art of Hearing Heartbeats" data-description="An exploration of abstract forms and colors, representing the chaotic beauty of a creative mind at work. Each stroke is intentional and full of meaning.">
-      <img src="AHH2.png" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="The Great Gatsby" 
+         data-description="A tragic story of obsession, wealth, and the elusive nature of the American Dream, set against the glittering backdrop of the Jazz Age.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Great+Gatsby" draggable="false" alt="The Great Gatsby Cover" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Green Earth" data-description="This image is a tribute to the natural world. It highlights the intricate patterns found in nature and serves as a reminder of the planet's fragile beauty.">
-      <img src="GE1.png" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="The Wonderful Wizard of Oz" 
+         data-description="Dorothy's magical journey down the Yellow Brick Road, discovering that courage, heart, and brains are found within oneself.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Wizard+of+Oz" draggable="false" alt="Wizard of Oz Cover" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Profile Portrait" data-description="A classic portrait study focusing on light, shadow, and expression. The subject's gaze tells a story of resilience and introspection.">
-      <img src="PP1.png" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="We" 
+         data-description="The dystopian masterpiece by Yevgeny Zamyatin that inspired 1984 and Brave New World, depicting a world of absolute logic and no individuality.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=We" draggable="false" alt="We Cover" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Mountain View" data-description="A majestic mountain range captured at dawn. The light creates long shadows and highlights the rugged textures of the landscape.">
-      <img src="https://picsum.photos/seed/picsum1/800/1200" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="Herland" 
+         data-description="A feminist utopian novel about an isolated society composed entirely of women, who reproduce via parthenogenesis and live in peace.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Herland" draggable="false" alt="Herland Cover" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="City Lights" data-description="An aerial view of a bustling city at night, with streets illuminated by countless lights, creating a vibrant, energetic scene.">
-      <img src="https://picsum.photos/seed/picsum2/800/1200" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="Alice in Wonderland" 
+         data-description="A whimsical descent into a nonsense world of white rabbits, mad hatters, and smiling cats, exploring the fluid nature of reality and logic.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Alice" draggable="false" alt="Alice in Wonderland Cover" />
     </div>
 
-    <div class="image-wrapper" style="--tint:#f5e0dc;" data-title="Coastal Serenity" data-description="Calm waves gently washing over a sandy shore during sunset, painting the sky in warm hues of orange and purple.">
-      <img src="https://picsum.photos/seed/picsum3/800/1200" draggable="false" />
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="The Secret Garden" 
+         data-description="A touching story of healing and friendship as an orphaned girl restores a locked, neglected garden and, in the process, her own spirit.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Secret+Garden" draggable="false" alt="The Secret Garden Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="Pride and Prejudice" 
+         data-description="The witty, romantic clash between the opinionated Elizabeth Bennet and the proud Mr. Darcy, exploring themes of love, reputation, and class.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Pride+&+Prejudice" draggable="false" alt="Pride and Prejudice Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="The Time Machine" 
+         data-description="H.G. Wells' science fiction classic that takes a journey to the distant future, revealing a split human race: the Eloi and the Morlocks.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Time+Machine" draggable="false" alt="The Time Machine Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="The Lost World" 
+         data-description="An expedition to a plateau in the Amazon basin where prehistoric animals still survive. A thrilling tale of adventure and discovery.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=The+Lost+World" draggable="false" alt="The Lost World Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="Great Expectations" 
+         data-description="The coming-of-age story of Pip, an orphan who comes into a fortune, exploring ambition, class, and the true nature of gentility.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Great+Expectations" draggable="false" alt="Great Expectations Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="An Absolutely Remarkable Thing" 
+         data-description="A modern sci-fi tale about first contact, fame, and the internet age, triggered by the appearance of giant robot statues across the globe.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Remarkable+Thing" draggable="false" alt="An Absolutely Remarkable Thing Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="And Then There Were None" 
+         data-description="Agatha Christie's masterpiece mystery. Ten strangers are lured to an island, and one by one, they are accused of murder... and then they die.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=And+Then+There+Were+None" draggable="false" alt="And Then There Were None Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="Dracula" 
+         data-description="The quintessential vampire novel told through letters and diaries, detailing the battle between the vampire hunter Van Helsing and the ancient Count.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Dracula" draggable="false" alt="Dracula Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="The Art of Hearing Heartbeats" 
+         data-description="A poignant love story set in Burma, about a daughter's journey to find her missing father and the magical history she uncovers." data-description="An exploration of abstract forms and colors.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Hearing+Heartbeats" draggable="false" alt="The Art of Hearing Heartbeats Cover" />
+    </div>
+
+    <div class="image-wrapper" style="--tint:#f5e0dc;" 
+         data-title="Near Miss" 
+         data-description="A Stone Barrington novel by Stuart Woods. A fast-paced thriller involving high stakes, international intrigue, and dangerous enemies.">
+      <img src="https://placehold.co/400x600/222/f5e0dc?text=Near+Miss" draggable="false" alt="Near Miss Cover" />
     </div>
 
   </div>
 
   <div id="details-view">
     <div id="details-content">
-      <h2 id="details-title">Image Title</h2>
-      <p id="details-description">Image description will appear here.</p>
-      <button id="back-button">Go Back</button>
+      <h2 id="details-title">Title Here</h2>
+      <p id="details-description">Description here.</p>
+      <button id="back-button">Close</button>
     </div>
   </div>
 
-<script>
+  <script>
     const track = document.getElementById("image-track");
-
     let isDragging = false;
+    let startX = 0;
+
+    /* --- SLIDER LOGIC --- */
 
     const handleOnDown = e => {
-        track.dataset.mouseDownAt = e.clientX;
-        isDragging = false;
+      // Ignore interactions if details are open
+      if (document.body.classList.contains("details-active")) return;
+      startX = e.clientX || e.touches[0].clientX;
+      track.dataset.mouseDownAt = startX;
+      isDragging = false;
     }
 
     const handleOnUp = () => {
-        track.dataset.mouseDownAt = "0";
-        track.dataset.prevPercentage = track.dataset.percentage;
+      track.dataset.mouseDownAt = "0";
+      track.dataset.prevPercentage = track.dataset.percentage;
     }
 
     const handleOnMove = e => {
-        if (document.body.classList.contains("details-active")) return;
-        if (track.dataset.mouseDownAt === "0") return;
-        
-        // If the mouse has moved more than a few pixels, consider it a drag
-        const mouseDelta = parseFloat(track.dataset.mouseDownAt) - e.clientX;
-        if (Math.abs(mouseDelta) > 5) {
-             isDragging = true;
-        }
+      if (document.body.classList.contains("details-active")) return;
+      if (track.dataset.mouseDownAt === "0") return;
 
-        const maxDelta = window.innerWidth / 2;
+      const clientX = e.clientX || e.touches[0].clientX;
+      const mouseDelta = parseFloat(track.dataset.mouseDownAt) - clientX;
+      
+      // Detection for drag vs click
+      if (Math.abs(mouseDelta) > 5) isDragging = true;
 
-        const percentage = (mouseDelta / maxDelta) * -100,
-            nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage) + percentage,
-            nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
+      const maxDelta = window.innerWidth / 2;
+      const percentage = (mouseDelta / maxDelta) * -100;
+      let nextPercentage = parseFloat(track.dataset.prevPercentage) + percentage;
 
-        track.dataset.percentage = nextPercentage;
+      // Bound the slider (0 to -100 roughly)
+      // We calculate min based on number of images to prevent scrolling too far
+      const minPercentage = -100; // Simplified for now, can be dynamic
+      nextPercentage = Math.max(Math.min(nextPercentage, 0), minPercentage);
 
-        track.animate({
-            transform: `translate(${nextPercentage}%, -50%)`
+      track.dataset.percentage = nextPercentage;
+
+      track.animate({
+        transform: `translate(${nextPercentage}%, -50%)`
+      }, { duration: 1200, fill: "forwards" });
+
+      // Parallax effect on images
+      for(const image of track.getElementsByTagName("img")) {
+        image.animate({
+          objectPosition: `${100 + nextPercentage}% center`
         }, { duration: 1200, fill: "forwards" });
-
-        for (const image of track.getElementsByTagName("img")) {
-            image.animate({
-                objectPosition: `${100 + nextPercentage}% center`
-            }, { duration: 1200, fill: "forwards" });
-        }
+      }
     }
 
-    /* --- Event Listeners for Dragging --- */
+    /* Event Listeners for Track */
     window.onmousedown = e => handleOnDown(e);
-    window.ontouchstart = e => handleOnDown(e.touches[0]);
+    window.ontouchstart = e => handleOnDown(e);
     window.onmouseup = e => handleOnUp(e);
-    window.ontouchend = e => handleOnUp(e.touches[0]);
+    window.ontouchend = e => handleOnUp(e);
     window.onmousemove = e => handleOnMove(e);
-    window.ontouchmove = e => handleOnMove(e.touches[0]);
+    window.ontouchmove = e => handleOnMove(e);
 
 
-    /* --- SCRIPT FOR DETAILS VIEW --- */
+    /* --- DETAILS VIEW LOGIC --- */
+
     const imageWrappers = document.querySelectorAll(".image-wrapper");
     const detailsView = document.getElementById("details-view");
     const backButton = document.getElementById("back-button");
     const detailsTitle = document.getElementById("details-title");
     const detailsDescription = document.getElementById("details-description");
 
+    // Variable to store the original inline style (for the tint)
+    let originalStyle = "";
+
     imageWrappers.forEach(wrapper => {
-        wrapper.addEventListener("click", () => {
-            // Prevent click if dragging occurred
-            if (isDragging) {
-                return;
-            }
+      wrapper.addEventListener("click", () => {
+        if (isDragging) return;
 
-            const rect = wrapper.getBoundingClientRect();
-            const title = wrapper.dataset.title;
-            const description = wrapper.dataset.description;
+        // Populate content
+        detailsTitle.textContent = wrapper.dataset.title;
+        detailsDescription.textContent = wrapper.dataset.description;
 
-            detailsTitle.textContent = title;
-            detailsDescription.textContent = description;
+        // 1. Capture original style (specifically the --tint var)
+        originalStyle = wrapper.getAttribute("style");
 
-            // --- KEY CHANGES START HERE ---
+        // 2. Get current coordinates for the FLIP animation
+        const rect = wrapper.getBoundingClientRect();
 
-            // 1. Set inline styles to lock the element's current position and size
-            wrapper.style.position = 'fixed';
-            wrapper.style.top = `${rect.top}px`;
-            wrapper.style.left = `${rect.left}px`;
-            wrapper.style.width = `${rect.width}px`;
-            wrapper.style.height = `${rect.height}px`;
-            wrapper.style.zIndex = '1001'; // Ensure it's on top during transition
-
-            // 2. Wait for the next frame to apply classes, allowing the browser to process the inline styles
-            requestAnimationFrame(() => {
-                document.body.classList.add("details-active");
-                wrapper.classList.add("expanded");
-            });
+        // 3. Freeze position immediately using fixed positioning
+        wrapper.style.position = 'fixed';
+        wrapper.style.top = `${rect.top}px`;
+        wrapper.style.left = `${rect.left}px`;
+        wrapper.style.width = `${rect.width}px`;
+        wrapper.style.height = `${rect.height}px`;
+        wrapper.style.zIndex = '1001';
+        
+        // 4. Force reflow/wait for next frame, then expand
+        requestAnimationFrame(() => {
+          document.body.classList.add("details-active");
+          wrapper.classList.add("expanded");
         });
+      });
     });
 
-    // Function to hide details
     const hideDetails = () => {
-        const expandedWrapper = document.querySelector(".image-wrapper.expanded");
-        if (!expandedWrapper) return; // Exit if no expanded image found
+      const expandedWrapper = document.querySelector(".image-wrapper.expanded");
+      if (!expandedWrapper) return;
 
-        document.body.classList.remove("details-active");
-        expandedWrapper.classList.remove("expanded");
-        
-        // 3. Listen for the transition to end before cleaning up styles
-        expandedWrapper.addEventListener('transitionend', () => {
-            // Clean up all inline styles so it returns to its original state in the track
-            expandedWrapper.removeAttribute('style');
-            // Re-apply the original tint if it was removed
-            if (expandedWrapper.dataset.tint) {
-                 expandedWrapper.style.setProperty('--tint', expandedWrapper.dataset.tint);
-            }
-        }, { once: true }); // Use { once: true } so the listener removes itself after one run
+      document.body.classList.remove("details-active");
+      expandedWrapper.classList.remove("expanded");
+
+      // Wait for transition to finish before resetting styles
+      expandedWrapper.addEventListener('transitionend', () => {
+        // Reset to absolute/flex layout by wiping the fixed styles
+        // But we MUST restore the original tint variable
+        if (originalStyle) {
+          expandedWrapper.setAttribute("style", originalStyle);
+        } else {
+          expandedWrapper.removeAttribute("style");
+        }
+      }, { once: true });
     };
 
-    // Add event listener to back button
     backButton.addEventListener("click", hideDetails);
-
-    // Optional: Add event listener to the overlay to also close the details
+    
+    // Close on clicking outside content
     detailsView.addEventListener("click", (e) => {
-        if (e.target === detailsView) {
-            hideDetails();
-        }
+      if (e.target === detailsView) hideDetails();
     });
 
-</script>
+  </script>
 </body>
 </html>
