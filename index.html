@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Club</title>
+  <title>Book Club 2025-2026</title>
   <style>
     :root {
       --bg-color: #11111b;
-      --card-bg: #1e1e2e;
-      --text-color: #cdd6f4;
-      --tint-color: #f38ba8;
+      --card-bg: #1a1a2e;
+      --text-color: #f5e0dc;
+      --accent: #cba6f7;
     }
 
     body {
@@ -17,12 +17,68 @@
       width: 100vw;
       background-color: var(--bg-color);
       margin: 0;
-      overflow: hidden;
       font-family: sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
-    /* --- Track & Scroll --- */
-    #image-track {
+    /* --- Search Bar --- */
+    #search-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(to bottom, #11111bf2, transparent);
+      z-index: 500;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.3s ease;
+    }
+
+    #search-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 12px 24px;
+      border-radius: 30px;
+      color: var(--text-color);
+      font-size: 1.1rem;
+      width: 300px;
+      outline: none;
+      backdrop-filter: blur(5px);
+      transition: width 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #search-input:focus {
+      width: 400px;
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(203, 166, 247, 0.3);
+    }
+
+    /* --- Year Headers --- */
+    .year-header {
+      font-size: 8rem;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.03);
+      position: absolute;
+      left: 5vw;
+      pointer-events: none;
+      z-index: 0;
+      line-height: 1;
+    }
+
+    /* --- Track Container --- */
+    .track-container {
+      position: relative;
+      height: 60vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      margin-bottom: 5vh;
+    }
+
+    .image-track {
       display: flex;
       gap: 4vmin;
       position: absolute;
@@ -30,40 +86,30 @@
       top: 50%;
       transform: translate(0%, -50%);
       user-select: none;
-      /* Smooth fade when details open */
-      transition: opacity 0.5s ease; 
+      transition: opacity 0.5s ease;
     }
 
-    body.details-active #image-track {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* --- Image Cards --- */
+    /* --- Images --- */
     .image-wrapper {
       position: relative;
-      width: 40vmin;
-      height: 56vmin;
-      overflow: hidden;
+      width: 35vmin;
+      height: 50vmin;
       cursor: pointer;
-      /* Transitions for the 'expand' animation */
-      transition: 
-        transform 0.5s cubic-bezier(0.2, 0, 0.2, 1),
-        width 0.5s cubic-bezier(0.2, 0, 0.2, 1),
-        height 0.5s cubic-bezier(0.2, 0, 0.2, 1),
-        top 0.5s cubic-bezier(0.2, 0, 0.2, 1),
-        left 0.5s cubic-bezier(0.2, 0, 0.2, 1);
+      flex-shrink: 0;
+      transition: opacity 0.4s ease, transform 0.4s ease; 
+      transform-style: preserve-3d;
     }
 
     .image-wrapper img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 100% center; /* Starts aligned right for parallax effect */
+      object-position: 100% center;
       display: block;
+      border-radius: 8px;
+      transition: object-position 0.1s linear; 
     }
 
-    /* Tint Overlay */
     .image-wrapper::after {
       content: "";
       position: absolute;
@@ -73,33 +119,44 @@
       opacity: 0.4;
       pointer-events: none;
       transition: opacity 0.4s ease;
+      border-radius: 8px;
     }
+    
+    .image-wrapper:hover::after { opacity: 0.1; }
 
-    .image-wrapper:hover::after {
-      opacity: 0.1; /* Lighten tint on hover */
-    }
-
-    /* --- Details Overlay --- */
+    /* --- Details Overlay & Background --- */
     #details-view {
       position: fixed;
       inset: 0;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: transparent; 
       z-index: 1000;
       display: flex;
       align-items: center;
-      justify-content: flex-start; /* Content on the left */
+      justify-content: flex-start;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s ease;
     }
 
-    body.details-active #details-view {
-      opacity: 1;
-      pointer-events: all;
+    #details-background {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: blur(40px) brightness(0.25);
+      z-index: 0;
+      transform: scale(1.1); 
     }
 
+    body.details-active #details-view { opacity: 1; pointer-events: all; }
+    body.details-active { overflow: hidden; }
+    body.details-active .image-track { opacity: 0; pointer-events: none; }
+    body.details-active #search-container { opacity: 0; pointer-events: none; }
+
     #details-content {
-      width: 50vw; /* Takes up left half */
+      position: relative;
+      z-index: 10;
+      width: 50vw;
       height: 100vh;
       color: var(--text-color);
       padding: 8vmin;
@@ -107,231 +164,290 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      /* Slide in effect for text */
       transform: translateX(-20px);
       transition: transform 0.5s ease;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
-    body.details-active #details-content {
-      transform: translateX(0);
-    }
+    body.details-active #details-content { transform: translateX(0); }
 
-    #details-content h2 {
-      font-size: 3.5rem;
-      margin: 0 0 1rem 0;
-      font-weight: 700;
-      line-height: 1.1;
+    #details-content h2 { 
+      font-size: 3.5rem; 
+      margin: 0 0 1rem 0; 
+      color: var(--accent); 
     }
-
-    #details-content p {
-      font-family: serif;
-      font-size: 1.25rem;
-      line-height: 1.6;
-      max-width: 600px;
-      opacity: 0.9;
+    
+    #details-content p { 
+      font-family: serif; 
+      font-size: 1.3rem; 
+      line-height: 1.6; 
+      opacity: 0.9; 
     }
 
     #back-button {
-      background-color: var(--text-color);
-      color: var(--bg-color);
-      border: none;
-      padding: 12px 24px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 12px 30px;
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: 30px;
       margin-top: 2rem;
       align-self: flex-start;
-      transition: transform 0.2s ease;
+      backdrop-filter: blur(5px);
+      transition: background 0.3s;
     }
-
     #back-button:hover {
-      transform: scale(1.05);
+      background-color: rgba(255, 255, 255, 0.3);
     }
 
-    /* --- Expanded State (Added via JS) --- */
+    /* Expanded Class for Animation */
     .image-wrapper.expanded {
-      /* Fixed positioning logic handled in JS, these are target values */
       width: 40vw;
-      height: 80vh; 
+      height: 80vh;
       z-index: 1003;
-      /* Center in the right half of the screen */
       top: 50% !important;
-      left: 75% !important; 
-      transform: translate(-50%, -50%) !important;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      left: 75% !important;
+      transform: translate(-50%, -50%) rotate(0deg) !important;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    }
+    .image-wrapper.expanded::after { opacity: 0; }
+    
+    /* Search Dimming Class */
+    .image-wrapper.dimmed {
+        opacity: 0.2;
+        transform: scale(0.9);
+        pointer-events: none;
     }
 
-    /* Remove tint when expanded so we see the full cover clearly */
-    .image-wrapper.expanded::after {
-      opacity: 0;
-    }
   </style>
 </head>
 <body>
 
-  <div id="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
+  <div id="search-container">
+    <input type="text" id="search-input" placeholder="Find a book...">
+  </div>
 
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="Jane Eyre" 
-         data-description="A novel that challenges the conventions of its time, presenting a fierce, independent heroine who refuses to compromise her integrity for love or societal acceptance.">
-      <img src="JE2025.jpg" draggable="false" alt="Jane Eyre Cover" />
+  <div class="track-container">
+    <div class="year-header" style="top: 10%;">2025</div>
+    
+    <div class="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="Jane Eyre" 
+           data-description="A novel that challenges the conventions of its time, presenting a fierce, independent heroine who refuses to compromise her integrity for love or societal acceptance.">
+        <img src="JE2025.jpg" draggable="false" alt="Jane Eyre Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="The Great Gatsby" 
+           data-description="A tragic story of obsession, wealth, and the elusive nature of the American Dream, set against the glittering backdrop of the Jazz Age.">
+        <img src="GGCover.jpg" draggable="false" alt="The Great Gatsby Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="The Wonderful Wizard of Oz" 
+           data-description="Dorothy's magical journey down the Yellow Brick Road, discovering that courage, heart, and brains are found within oneself.">
+        <img src="OZCover.jpg" draggable="false" alt="Wizard of Oz Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#cba6f7;" 
+           data-title="We" 
+           data-description="The dystopian masterpiece by Yevgeny Zamyatin that inspired 1984 and Brave New World, depicting a world of absolute logic and no individuality.">
+        <img src="WECover.jpg" draggable="false" alt="We Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="Herland" 
+           data-description="A feminist utopian novel about an isolated society composed entirely of women, who reproduce via parthenogenesis and live in peace.">
+        <img src="HCover.jpg" draggable="false" alt="Herland Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="Alice in Wonderland" 
+           data-description="A whimsical descent into a nonsense world of white rabbits, mad hatters, and smiling cats, exploring the fluid nature of reality and logic.">
+        <img src="AWCover.jpg" draggable="false" alt="Alice in Wonderland Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="The Secret Garden" 
+           data-description="A touching story of healing and friendship as an orphaned girl restores a locked, neglected garden and, in the process, her own spirit.">
+        <img src="SGCover.webp" draggable="false" alt="The Secret Garden Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="Pride and Prejudice" 
+           data-description="The witty, romantic clash between the opinionated Elizabeth Bennet and the proud Mr. Darcy, exploring themes of love, reputation, and class.">
+        <img src="PPCover.jpg" draggable="false" alt="Pride and Prejudice Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="The Time Machine" 
+           data-description="H.G. Wells' science fiction classic that takes a journey to the distant future, revealing a split human race: the Eloi and the Morlocks.">
+        <img src="TMCover.jpg" draggable="false" alt="The Time Machine Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="The Lost World" 
+           data-description="An expedition to a plateau in the Amazon basin where prehistoric animals still survive. A thrilling tale of adventure and discovery.">
+        <img src="LWCover.jpg" draggable="false" alt="The Lost World Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="Great Expectations" 
+           data-description="The coming-of-age story of Pip, an orphan who comes into a fortune, exploring ambition, class, and the true nature of gentility.">
+        <img src="GECover.jpg" draggable="false" alt="Great Expectations Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="An Absolutely Remarkable Thing" 
+           data-description="A modern sci-fi tale about first contact, fame, and the internet age, triggered by the appearance of giant robot statues across the globe.">
+        <img src="AARTCover.jpg" draggable="false" alt="An Absolutely Remarkable Thing Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="And Then There Were None" 
+           data-description="Agatha Christie's masterpiece mystery. Ten strangers are lured to an island, and one by one, they are accused of murder... and then they die.">
+        <img src="ATWNCover.JPG" draggable="false" alt="And Then There Were None Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="Dracula" 
+           data-description="The quintessential vampire novel told through letters and diaries, detailing the battle between the vampire hunter Van Helsing and the ancient Count.">
+        <img src="DCover.jpg" draggable="false" alt="Dracula Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="The Art of Hearing Heartbeats" 
+           data-description="A poignant love story set in Burma, about a daughter's journey to find her missing father and the magical history she uncovers.">
+        <img src="AHH2.png" draggable="false" alt="The Art of Hearing Heartbeats Cover" />
+      </div>
+
+      <div class="image-wrapper" style="--tint:#f38ba8;" 
+           data-title="Near Miss" 
+           data-description="A Stone Barrington novel by Stuart Woods. A fast-paced thriller involving high stakes, international intrigue, and dangerous enemies.">
+        <img src="NMCover.jpg" draggable="false" alt="Near Miss Cover" />
+      </div>
+
     </div>
+  </div>
 
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="The Great Gatsby" 
-         data-description="A tragic story of obsession, wealth, and the elusive nature of the American Dream, set against the glittering backdrop of the Jazz Age.">
-      <img src="GGCover.jpg" draggable="false" alt="The Great Gatsby Cover" />
+  <div class="track-container">
+    <div class="year-header" style="top: 10%;">2026</div>
+    <div class="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
+      
+      <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #1" data-description="Coming soon...">
+        <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+1" draggable="false" />
+      </div>
+      <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #2" data-description="Coming soon...">
+        <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+2" draggable="false" />
+      </div>
+      <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #3" data-description="Coming soon...">
+        <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+3" draggable="false" />
+      </div>
+      <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #4" data-description="Coming soon...">
+        <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+4" draggable="false" />
+      </div>
+      <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #5" data-description="Coming soon...">
+        <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+5" draggable="false" />
+      </div>
+      <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #6" data-description="Coming soon...">
+        <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+6" draggable="false" />
+      </div>
+      <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #7" data-description="Coming soon...">
+        <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+7" draggable="false" />
+      </div>
+
     </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="The Wonderful Wizard of Oz" 
-         data-description="Dorothy's magical journey down the Yellow Brick Road, discovering that courage, heart, and brains are found within oneself.">
-      <img src="OZCover.jpg" draggable="false" alt="Wizard of Oz Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#cba6f7;" 
-         data-title="We" 
-         data-description="The dystopian masterpiece by Yevgeny Zamyatin that inspired 1984 and Brave New World, depicting a world of absolute logic and no individuality.">
-      <img src="WECover.jpg" draggable="false" alt="We Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="Herland" 
-         data-description="A feminist utopian novel about an isolated society composed entirely of women, who reproduce via parthenogenesis and live in peace.">
-      <img src="HCover.jpg" draggable="false" alt="Herland Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="Alice in Wonderland" 
-         data-description="A whimsical descent into a nonsense world of white rabbits, mad hatters, and smiling cats, exploring the fluid nature of reality and logic.">
-      <img src="AWCover.jpg" draggable="false" alt="Alice in Wonderland Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="The Secret Garden" 
-         data-description="A touching story of healing and friendship as an orphaned girl restores a locked, neglected garden and, in the process, her own spirit.">
-      <img src="SGCover.webp" draggable="false" alt="The Secret Garden Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="Pride and Prejudice" 
-         data-description="The witty, romantic clash between the opinionated Elizabeth Bennet and the proud Mr. Darcy, exploring themes of love, reputation, and class.">
-      <img src="PPCover.jpg" draggable="false" alt="Pride and Prejudice Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="The Time Machine" 
-         data-description="H.G. Wells' science fiction classic that takes a journey to the distant future, revealing a split human race: the Eloi and the Morlocks.">
-      <img src="TMCover.jpg" draggable="false" alt="The Time Machine Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="The Lost World" 
-         data-description="An expedition to a plateau in the Amazon basin where prehistoric animals still survive. A thrilling tale of adventure and discovery.">
-      <img src="LWCover.jpg" draggable="false" alt="The Lost World Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="Great Expectations" 
-         data-description="The coming-of-age story of Pip, an orphan who comes into a fortune, exploring ambition, class, and the true nature of gentility.">
-      <img src="GECover.jpg" draggable="false" alt="Great Expectations Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="An Absolutely Remarkable Thing" 
-         data-description="A modern sci-fi tale about first contact, fame, and the internet age, triggered by the appearance of giant robot statues across the globe.">
-      <img src="AARTCover.jpg" draggable="false" alt="An Absolutely Remarkable Thing Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="And Then There Were None" 
-         data-description="Agatha Christie's masterpiece mystery. Ten strangers are lured to an island, and one by one, they are accused of murder... and then they die.">
-      <img src="ATWNCover.JPG" draggable="false" alt="And Then There Were None Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="Dracula" 
-         data-description="The quintessential vampire novel told through letters and diaries, detailing the battle between the vampire hunter Van Helsing and the ancient Count.">
-      <img src="DCover.jpg" draggable="false" alt="Dracula Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="The Art of Hearing Heartbeats" 
-         data-description="A poignant love story set in Burma, about a daughter's journey to find her missing father and the magical history she uncovers." data-description="An exploration of abstract forms and colors.">
-      <img src="AHH2.png" draggable="false" alt="The Art of Hearing Heartbeats Cover" />
-    </div>
-
-    <div class="image-wrapper" style="--tint:#f38ba8;" 
-         data-title="Near Miss" 
-         data-description="A Stone Barrington novel by Stuart Woods. A fast-paced thriller involving high stakes, international intrigue, and dangerous enemies.">
-      <img src="NMCover.jpg" draggable="false" alt="Near Miss Cover" />
-    </div>
-
   </div>
 
   <div id="details-view">
+    <div id="details-background"></div>
+
     <div id="details-content">
-      <h2 id="details-title">Title Here</h2>
-      <p id="details-description">Description here.</p>
+      <h2 id="details-title">Title</h2>
+      <p id="details-description">Desc</p>
       <button id="back-button">Close</button>
     </div>
   </div>
 
   <script>
-    const track = document.getElementById("image-track");
+    /* --- SEARCH FUNCTIONALITY --- */
+    const searchInput = document.getElementById('search-input');
+    const allWrappers = document.querySelectorAll('.image-wrapper');
+
+    searchInput.addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase();
+        
+        allWrappers.forEach(wrapper => {
+            const title = wrapper.dataset.title.toLowerCase();
+            if(title.includes(value)) {
+                wrapper.classList.remove('dimmed');
+            } else {
+                wrapper.classList.add('dimmed');
+            }
+        });
+    });
+
+    /* --- WHEEL & DRAG LOGIC --- */
+    let activeTrack = null;
     let isDragging = false;
     let startX = 0;
 
-    /* --- SLIDER LOGIC --- */
-
-    const handleOnDown = e => {
-      // Ignore interactions if details are open
+    const handleOnDown = (e) => {
       if (document.body.classList.contains("details-active")) return;
+      
+      activeTrack = e.target.closest('.image-track');
+      if (!activeTrack) return;
+
       startX = e.clientX || e.touches[0].clientX;
-      track.dataset.mouseDownAt = startX;
+      activeTrack.dataset.mouseDownAt = startX;
       isDragging = false;
     }
 
     const handleOnUp = () => {
-      track.dataset.mouseDownAt = "0";
-      track.dataset.prevPercentage = track.dataset.percentage;
+      if(activeTrack) {
+        activeTrack.dataset.mouseDownAt = "0";
+        activeTrack.dataset.prevPercentage = activeTrack.dataset.percentage;
+        activeTrack = null;
+      }
     }
 
-    const handleOnMove = e => {
-      if (document.body.classList.contains("details-active")) return;
-      if (track.dataset.mouseDownAt === "0") return;
+    const handleOnMove = (e) => {
+      if (!activeTrack || activeTrack.dataset.mouseDownAt === "0") return;
 
       const clientX = e.clientX || e.touches[0].clientX;
-      const mouseDelta = parseFloat(track.dataset.mouseDownAt) - clientX;
-      
-      // Detection for drag vs click
+      const mouseDelta = parseFloat(activeTrack.dataset.mouseDownAt) - clientX;
+
       if (Math.abs(mouseDelta) > 5) isDragging = true;
 
       const maxDelta = window.innerWidth / 2;
       const percentage = (mouseDelta / maxDelta) * -100;
-      let nextPercentage = parseFloat(track.dataset.prevPercentage) + percentage;
+      let nextPercentage = parseFloat(activeTrack.dataset.prevPercentage) + percentage;
 
-      // Bound the slider (0 to -100 roughly)
-      // We calculate min based on number of images to prevent scrolling too far
-      const minPercentage = -100; // Simplified for now, can be dynamic
-      nextPercentage = Math.max(Math.min(nextPercentage, 0), minPercentage);
+      nextPercentage = Math.max(Math.min(nextPercentage, 0), -100);
+      activeTrack.dataset.percentage = nextPercentage;
 
-      track.dataset.percentage = nextPercentage;
-
-      track.animate({
+      activeTrack.animate({
         transform: `translate(${nextPercentage}%, -50%)`
       }, { duration: 1200, fill: "forwards" });
 
-      // Parallax effect on images
-      for(const image of track.getElementsByTagName("img")) {
-        image.animate({
+      const images = activeTrack.getElementsByClassName("image-wrapper");
+      
+      for(const wrapper of images) {
+        const img = wrapper.querySelector("img");
+        
+        img.animate({
           objectPosition: `${100 + nextPercentage}% center`
+        }, { duration: 1200, fill: "forwards" });
+        
+        wrapper.animate({
+            transform: `rotate(${nextPercentage * 0.2}deg)` 
         }, { duration: 1200, fill: "forwards" });
       }
     }
 
-    /* Event Listeners for Track */
     window.onmousedown = e => handleOnDown(e);
     window.ontouchstart = e => handleOnDown(e);
     window.onmouseup = e => handleOnUp(e);
@@ -341,31 +457,29 @@
 
 
     /* --- DETAILS VIEW LOGIC --- */
-
-    const imageWrappers = document.querySelectorAll(".image-wrapper");
     const detailsView = document.getElementById("details-view");
+    const detailsBg = document.getElementById("details-background");
     const backButton = document.getElementById("back-button");
     const detailsTitle = document.getElementById("details-title");
     const detailsDescription = document.getElementById("details-description");
-
-    // Variable to store the original inline style (for the tint)
     let originalStyle = "";
 
-    imageWrappers.forEach(wrapper => {
+    allWrappers.forEach(wrapper => {
       wrapper.addEventListener("click", () => {
         if (isDragging) return;
 
-        // Populate content
         detailsTitle.textContent = wrapper.dataset.title;
         detailsDescription.textContent = wrapper.dataset.description;
 
-        // 1. Capture original style (specifically the --tint var)
-        originalStyle = wrapper.getAttribute("style");
+        const img = wrapper.querySelector("img");
+        const tint = wrapper.style.getPropertyValue("--tint");
+        
+        detailsBg.style.backgroundImage = `url(${img.src})`;
+        detailsTitle.style.color = tint;
 
-        // 2. Get current coordinates for the FLIP animation
+        originalStyle = wrapper.getAttribute("style");
         const rect = wrapper.getBoundingClientRect();
 
-        // 3. Freeze position immediately using fixed positioning
         wrapper.style.position = 'fixed';
         wrapper.style.top = `${rect.top}px`;
         wrapper.style.left = `${rect.left}px`;
@@ -373,7 +487,6 @@
         wrapper.style.height = `${rect.height}px`;
         wrapper.style.zIndex = '1001';
         
-        // 4. Force reflow/wait for next frame, then expand
         requestAnimationFrame(() => {
           document.body.classList.add("details-active");
           wrapper.classList.add("expanded");
@@ -388,23 +501,27 @@
       document.body.classList.remove("details-active");
       expandedWrapper.classList.remove("expanded");
 
-      // Wait for transition to finish before resetting styles
       expandedWrapper.addEventListener('transitionend', () => {
-        // Reset to absolute/flex layout by wiping the fixed styles
-        // But we MUST restore the original tint variable
         if (originalStyle) {
           expandedWrapper.setAttribute("style", originalStyle);
         } else {
           expandedWrapper.removeAttribute("style");
         }
+        
+        const parentTrack = expandedWrapper.closest('.image-track');
+        if(parentTrack){
+            const currentPercent = parseFloat(parentTrack.dataset.percentage) || 0;
+            expandedWrapper.animate({
+                transform: `rotate(${currentPercent * 0.2}deg)` 
+            }, { duration: 0, fill: "forwards" });
+        }
+
       }, { once: true });
     };
 
     backButton.addEventListener("click", hideDetails);
-    
-    // Close on clicking outside content
     detailsView.addEventListener("click", (e) => {
-      if (e.target === detailsView) hideDetails();
+      if (e.target === detailsView || e.target === detailsBg) hideDetails();
     });
 
   </script>
