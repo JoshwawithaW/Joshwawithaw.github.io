@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+<div id="blob"></div>
+<div id="blur"></div>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +23,36 @@
       overflow-x: hidden;
       overflow-y: auto;
     }
+    /* --- BLOB & BLUR EFFECTS --- */
+    @keyframes rotate {
+      from { rotate: 0deg; }
+      50% { scale: 1 1.5; }
+      to { rotate: 360deg; }
+    }
 
+    #blob {
+      background-color: white;
+      height: 34vmax;
+      aspect-ratio: 1;
+      position: fixed; 
+      left: 50%;
+      top: 50%;
+      translate: -50% -50%;
+      border-radius: 50%;
+      background: linear-gradient(to right, #b4befe, #f38ba8);
+      animation: rotate 20s infinite;
+      opacity: 0.8;
+      z-index: -1; 
+    }
+
+    #blur {
+      height: 100%;
+      width: 100%;
+      position: fixed; 
+      z-index: -1; 
+      backdrop-filter: blur(12vmax);
+      pointer-events: none; 
+    }
     /* --- Search Bar --- */
     #search-container {
       position: fixed;
@@ -454,6 +485,19 @@
     window.ontouchend = e => handleOnUp(e);
     window.onmousemove = e => handleOnMove(e);
     window.ontouchmove = e => handleOnMove(e);
+
+/* -- Glow effect -- */
+
+const blob = document.getElementById("blob");
+
+window.onpointermove = event => { 
+  const { clientX, clientY } = event;
+  
+  blob.animate({
+    left: `${clientX}px`,
+    top: `${clientY}px`
+  }, { duration: 3000, fill: "forwards" });
+}
 
 
     /* --- DETAILS VIEW LOGIC --- */
