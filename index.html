@@ -775,7 +775,6 @@
         <div class="track-container">
             <div class="year-header" style="top: 10%;">2025</div>
             <div class="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
-                <!-- Book items unchanged -->
                 <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Jane Eyre" data-description="A novel that challenges the conventions of its time, presenting a fierce, independent heroine who refuses to compromise her integrity for love or societal acceptance.">
                     <img src="JE2025.jpg" draggable="false" alt="Jane Eyre Cover" />
                 </div>
@@ -855,15 +854,14 @@
         </div>
     </section>
 
-    <!-- Drawing Gallery (dynamically filled from PDF) -->
+    <!-- Drawing Gallery (dynamically filled from PDFs) -->
     <section id="gallery-section">
         <div class="gallery-section-header">
             <h2>My Drawings</h2>
             <p class="subtitle">Click any artwork to enlarge</p>
         </div>
-        <!-- Gallery items will be inserted here by JavaScript -->
         <div id="gallery-grid" style="display: contents;"></div>
-        <div id="gallery-loading">Loading drawings from PDF…</div>
+        <div id="gallery-loading">Loading drawings from PDFs…</div>
     </section>
 
     <!-- Gallery Lightbox -->
@@ -883,14 +881,19 @@
     </div>
 
     <script>
-        /* ===================== PDF GALLERY CONFIGURATION ===================== */
-        // Put your PDF file in the same folder as this HTML and update the filename here:
-        const PDF_URL = 'drawings.pdf';   // <-- CHANGE THIS to your PDF file name
+        /* ===================== MULTI-PDF GALLERY CONFIGURATION ===================== */
+        // List all your PDF filenames here (place them in the same folder as this HTML)
+        const PDF_FILES = [
+            'drawings1.pdf',
+            'drawings2.pdf',
+            'drawings3.pdf'
+            // Add more files as needed
+        ];
 
         // PDF.js worker
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        let pdfDoc = null;
+        let pdfDocs = [];
         let galleryRendered = false;
 
         const galleryGrid = document.getElementById('gallery-grid');
@@ -902,74 +905,78 @@
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxClose = document.getElementById('lightbox-close');
 
-        /* --- Load PDF and render all pages as gallery items --- */
-        async function loadGalleryFromPDF() {
-            if (galleryRendered) return; // Already done
+        /* --- Load all PDFs and render every page as a gallery item --- */
+        async function loadGalleryFromPDFs() {
+            if (galleryRendered) return;
             galleryLoading.style.display = 'block';
 
+            let globalDrawingNumber = 1; // sequential number across all PDFs
+
             try {
-                pdfDoc = await pdfjsLib.getDocument(PDF_URL).promise;
-                const totalPages = pdfDoc.numPages;
+                for (const pdfUrl of PDF_FILES) {
+                    console.log(`Loading PDF: ${pdfUrl}`);
+                    const pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+                    const totalPages = pdfDoc.numPages;
 
-                // Clear loading indicator
-                galleryLoading.style.display = 'none';
+                    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                        const page = await pdfDoc.getPage(pageNum);
+                        const viewport = page.getViewport({ scale: 1.5 }); // high resolution
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
 
-                // Render each page
-                for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-                    const page = await pdfDoc.getPage(pageNum);
-                    const viewport = page.getViewport({ scale: 1.5 }); // higher resolution
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
+                        await page.render({
+                            canvasContext: context,
+                            viewport: viewport
+                        }).promise;
 
-                    await page.render({
-                        canvasContext: context,
-                        viewport: viewport
-                    }).promise;
+                        // Convert to high-quality JPEG data URL
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
-                    // Convert to data URL
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                        // Create gallery item
+                        const item = document.createElement('div');
+                        item.className = 'gallery-item';
+                        item.setAttribute('data-src', dataUrl);
 
-                    // Create gallery item
-                    const item = document.createElement('div');
-                    item.className = 'gallery-item';
-                    item.setAttribute('data-src', dataUrl);
+                        const img = document.createElement('img');
+                        img.src = dataUrl;
+                        img.alt = `Drawing ${globalDrawingNumber}`;
+                        img.loading = 'lazy';
+                        img.draggable = false;
 
-                    const img = document.createElement('img');
-                    img.src = dataUrl;
-                    img.alt = `Drawing ${pageNum}`;
-                    img.loading = 'lazy';
-                    img.draggable = false;
+                        const frame = document.createElement('div');
+                        frame.className = 'glass-frame';
 
-                    const frame = document.createElement('div');
-                    frame.className = 'glass-frame';
+                        const label = document.createElement('span');
+                        label.className = 'gallery-label';
+                        label.textContent = `Drawing ${globalDrawingNumber}`;
 
-                    const label = document.createElement('span');
-                    label.className = 'gallery-label';
-                    label.textContent = `Page ${pageNum}`;
+                        item.appendChild(img);
+                        item.appendChild(frame);
+                        item.appendChild(label);
 
-                    item.appendChild(img);
-                    item.appendChild(frame);
-                    item.appendChild(label);
+                        // Lightbox click handler
+                        item.addEventListener('click', (e) => {
+                            if (window.getSelection().toString().length > 0) return;
+                            const src = item.getAttribute('data-src');
+                            lightboxImg.src = src;
+                            lightbox.classList.add('active');
+                            lightboxClose.classList.add('visible');
+                            document.body.style.overflow = 'hidden';
+                        });
 
-                    // Attach lightbox click handler
-                    item.addEventListener('click', (e) => {
-                        if (window.getSelection().toString().length > 0) return;
-                        const src = item.getAttribute('data-src');
-                        lightboxImg.src = src;
-                        lightbox.classList.add('active');
-                        lightboxClose.classList.add('visible');
-                        document.body.style.overflow = 'hidden';
-                    });
-
-                    galleryGrid.appendChild(item);
+                        galleryGrid.appendChild(item);
+                        globalDrawingNumber++;
+                    }
                 }
 
+                galleryLoading.style.display = 'none';
                 galleryRendered = true;
+                console.log(`✅ Gallery loaded: ${globalDrawingNumber - 1} drawings from ${PDF_FILES.length} PDF(s)`);
             } catch (error) {
-                console.error('Failed to load PDF:', error);
-                galleryLoading.innerHTML = '⚠️ Could not load drawings.pdf. Make sure the file exists and is in the same folder.';
+                console.error('Failed to load PDFs:', error);
+                galleryLoading.innerHTML = '⚠️ Could not load drawings. Check that PDF files exist and are in the same folder.';
                 galleryLoading.style.color = '#f38ba8';
             }
         }
@@ -1017,7 +1024,7 @@
                     document.body.classList.remove('details-active');
                     // Trigger PDF gallery load if not yet done
                     if (!galleryRendered) {
-                        loadGalleryFromPDF();
+                        loadGalleryFromPDFs();
                     }
                 } else {
                     body.classList.remove('gallery-mode');
