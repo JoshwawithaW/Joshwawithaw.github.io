@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Club 2025-2026</title>
+    <title>Book Club & Drawing Gallery</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- PDF.js for rendering pages from PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         :root {
             --bg-color: #11111b;
@@ -42,25 +44,14 @@
 
         /* --- BLOB & BLUR EFFECTS --- */
         @keyframes rotate {
-            from {
-                rotate: 0deg;
-            }
-            50% {
-                scale: 1 1.5;
-            }
-            to {
-                rotate: 360deg;
-            }
+            from { rotate: 0deg; }
+            50% { scale: 1 1.5; }
+            to { rotate: 360deg; }
         }
 
         @keyframes blobPulse {
-            0%,
-            100% {
-                opacity: 0.7;
-            }
-            50% {
-                opacity: 0.9;
-            }
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.9; }
         }
 
         #blob {
@@ -240,7 +231,6 @@
             border-radius: 6px;
             transition: transform 0.4s cubic-bezier(0.25, 0, 0.25, 1),
                 box-shadow 0.4s cubic-bezier(0.25, 0, 0.25, 1);
-            /* Outer shadow (frame shadow on wall) */
             box-shadow:
                 0 16px 40px rgba(0, 0, 0, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -254,21 +244,18 @@
                 0 0 0 1px rgba(255, 255, 255, 0.08);
         }
 
-        /* The glass frame overlay */
         .gallery-item .glass-frame {
             position: absolute;
             inset: 0;
             z-index: 2;
             pointer-events: none;
             border-radius: 6px;
-            /* Glass panel */
             background: transparent;
             border: 2px solid rgba(255, 255, 255, 0.18);
             box-shadow:
                 0 0 0 8px rgba(20, 18, 15, 0.7),
                 0 0 0 10px rgba(180, 160, 130, 0.2),
                 0 0 0 11px rgba(0, 0, 0, 0.5),
-                /* Inner glass highlight */
                 inset 0 1px 0 rgba(255, 255, 255, 0.3),
                 inset 0 -1px 0 rgba(0, 0, 0, 0.2),
                 inset 1px 0 0 rgba(255, 255, 255, 0.1),
@@ -288,7 +275,6 @@
                 inset -1px 0 0 rgba(0, 0, 0, 0.2);
         }
 
-        /* Specular highlight sweep on the glass */
         .gallery-item .glass-frame::after {
             content: '';
             position: absolute;
@@ -332,7 +318,6 @@
             transform: scale(1.015);
         }
 
-        /* Gallery item label */
         .gallery-label {
             position: absolute;
             bottom: -32px;
@@ -353,7 +338,7 @@
             color: rgba(245, 224, 220, 0.95);
         }
 
-        /* --- GALLERY LIGHTBOX (click to enlarge) --- */
+        /* --- GALLERY LIGHTBOX --- */
         #gallery-lightbox {
             position: fixed;
             inset: 0;
@@ -416,7 +401,7 @@
             pointer-events: none;
         }
 
-        #gallery-lightbox.active~#lightbox-close,
+        #gallery-lightbox.active ~ #lightbox-close,
         #lightbox-close.visible {
             opacity: 1;
             pointer-events: all;
@@ -442,7 +427,7 @@
             pointer-events: none;
         }
 
-        #search-container>* {
+        #search-container > * {
             pointer-events: all;
         }
 
@@ -531,7 +516,6 @@
             transition: opacity 0.4s ease, transform 0.4s ease;
             transform-style: preserve-3d;
             border-radius: 8px;
-            /* Glass skeuomorphic subtle border */
             box-shadow:
                 0 8px 28px rgba(0, 0, 0, 0.4),
                 0 0 0 1px rgba(255, 255, 255, 0.06);
@@ -569,7 +553,7 @@
             opacity: 0.1;
         }
 
-        /* --- Details Overlay & Background --- */
+        /* --- Details Overlay --- */
         #details-view {
             position: fixed;
             inset: 0;
@@ -678,7 +662,6 @@
             transform: translateY(-2px);
         }
 
-        /* Expanded Class for Animation */
         .image-wrapper.expanded {
             width: 40vw;
             height: 80vh;
@@ -689,14 +672,9 @@
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
             border-radius: 12px;
         }
-        .image-wrapper.expanded::after {
-            opacity: 0;
-        }
-        .image-wrapper.expanded img {
-            border-radius: 12px;
-        }
+        .image-wrapper.expanded::after { opacity: 0; }
+        .image-wrapper.expanded img { border-radius: 12px; }
 
-        /* Search Dimming Class */
         .image-wrapper.dimmed {
             opacity: 0.15;
             transform: scale(0.88);
@@ -705,7 +683,6 @@
             transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
         }
 
-        /* --- Gallery Section Header --- */
         .gallery-section-header {
             grid-column: 1 / -1;
             text-align: center;
@@ -728,7 +705,17 @@
             margin-top: 4px;
         }
 
-        /* --- Responsive --- */
+        /* Loading indicator */
+        #gallery-loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            padding: 40px;
+            opacity: 0.7;
+        }
+
         @media (max-width: 768px) {
             #glass-nav {
                 top: 8px;
@@ -741,25 +728,16 @@
                 font-size: 0.78rem;
                 border-radius: 24px;
             }
-            .nav-tab .tab-icon {
-                margin-right: 3px;
-                font-size: 0.7rem;
-            }
             #search-input {
                 width: 220px;
                 padding: 11px 20px;
                 font-size: 0.9rem;
             }
-            #search-input:focus {
-                width: 280px;
-            }
+            #search-input:focus { width: 280px; }
             #gallery-section {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                 gap: 18px;
                 padding: calc(var(--nav-height) + 24px) 16px 40px;
-            }
-            .gallery-item {
-                max-width: 100%;
             }
             .gallery-item .glass-frame {
                 border-width: 1.5px;
@@ -770,40 +748,15 @@
                     inset 0 1px 0 rgba(255, 255, 255, 0.25),
                     inset 0 -1px 0 rgba(0, 0, 0, 0.15);
             }
-            #details-content {
-                width: 85vw;
-                padding: 5vmin;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #gallery-section {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            .nav-tab {
-                padding: 8px 12px;
-                font-size: 0.7rem;
-            }
-            #search-container {
-                top: 68px;
-            }
-            #search-input {
-                width: 180px;
-                padding: 10px 16px;
-            }
-            #search-input:focus {
-                width: 230px;
-            }
+            #details-content { width: 85vw; padding: 5vmin; }
         }
     </style>
 </head>
 <body>
-
     <div id="blob"></div>
     <div id="blur"></div>
 
-    <!-- Glass Skeuomorphic Navigation -->
+    <!-- Glass Navigation -->
     <nav id="glass-nav">
         <button class="nav-tab active" data-section="book" aria-label="Book Club Section">
             <span class="tab-icon">📚</span> Book Club
@@ -822,470 +775,414 @@
         <div class="track-container">
             <div class="year-header" style="top: 10%;">2025</div>
             <div class="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
-
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Jane Eyre"
-                data-description="A novel that challenges the conventions of its time, presenting a fierce, independent heroine who refuses to compromise her integrity for love or societal acceptance.">
-                <img src="JE2025.jpg" draggable="false" alt="Jane Eyre Cover" />
+                <!-- Book items unchanged -->
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Jane Eyre" data-description="A novel that challenges the conventions of its time, presenting a fierce, independent heroine who refuses to compromise her integrity for love or societal acceptance.">
+                    <img src="JE2025.jpg" draggable="false" alt="Jane Eyre Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Great Gatsby" data-description="A tragic story of obsession, wealth, and the elusive nature of the American Dream, set against the glittering backdrop of the Jazz Age.">
+                    <img src="GGCover.jpg" draggable="false" alt="The Great Gatsby Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Wonderful Wizard of Oz" data-description="Dorothy's magical journey down the Yellow Brick Road, discovering that courage, heart, and brains are found within oneself.">
+                    <img src="OZCover.jpg" draggable="false" alt="Wizard of Oz Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="We" data-description="The dystopian masterpiece by Yevgeny Zamyatin that inspired 1984 and Brave New World, depicting a world of absolute logic and no individuality.">
+                    <img src="WECover.jpg" draggable="false" alt="We Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Herland" data-description="A feminist utopian novel about an isolated society composed entirely of women, who reproduce via parthenogenesis and live in peace.">
+                    <img src="HCover.jpg" draggable="false" alt="Herland Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Alice in Wonderland" data-description="A whimsical descent into a nonsense world of white rabbits, mad hatters, and smiling cats, exploring the fluid nature of reality and logic.">
+                    <img src="AWCover.jpg" draggable="false" alt="Alice in Wonderland Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Secret Garden" data-description="A touching story of healing and friendship as an orphaned girl restores a locked, neglected garden and, in the process, her own spirit.">
+                    <img src="SGCover.webp" draggable="false" alt="The Secret Garden Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Pride and Prejudice" data-description="The witty, romantic clash between the opinionated Elizabeth Bennet and the proud Mr. Darcy, exploring themes of love, reputation, and class.">
+                    <img src="PPCover.jpg" draggable="false" alt="Pride and Prejudice Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Time Machine" data-description="H.G. Wells' science fiction classic that takes a journey to the distant future, revealing a split human race: the Eloi and the Morlocks.">
+                    <img src="TMCover.jpg" draggable="false" alt="The Time Machine Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Lost World" data-description="An expedition to a plateau in the Amazon basin where prehistoric animals still survive. A thrilling tale of adventure and discovery.">
+                    <img src="LWCover.jpg" draggable="false" alt="The Lost World Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Great Expectations" data-description="The coming-of-age story of Pip, an orphan who comes into a fortune, exploring ambition, class, and the true nature of gentility.">
+                    <img src="GECover.jpg" draggable="false" alt="Great Expectations Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="An Absolutely Remarkable Thing" data-description="A modern sci-fi tale about first contact, fame, and the internet age, triggered by the appearance of giant robot statues across the globe.">
+                    <img src="AARTCover.jpg" draggable="false" alt="An Absolutely Remarkable Thing Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="And Then There Were None" data-description="Agatha Christie's masterpiece mystery. Ten strangers are lured to an island, and one by one, they are accused of murder... and then they die.">
+                    <img src="ATWNCover.JPG" draggable="false" alt="And Then There Were None Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Dracula" data-description="The quintessential vampire novel told through letters and diaries, detailing the battle between the vampire hunter Van Helsing and the ancient Count.">
+                    <img src="DCover.jpg" draggable="false" alt="Dracula Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Art of Hearing Heartbeats" data-description="A poignant love story set in Burma, about a daughter's journey to find her missing father and the magical history she uncovers.">
+                    <img src="AHH2.png" draggable="false" alt="The Art of Hearing Heartbeats Cover" />
+                </div>
+                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Near Miss" data-description="A Stone Barrington novel by Stuart Woods. A fast-paced thriller involving high stakes, international intrigue, and dangerous enemies.">
+                    <img src="NMCover.jpg" draggable="false" alt="Near Miss Cover" />
+                </div>
             </div>
-            <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Great Gatsby"
-            data-description="A tragic story of obsession, wealth, and the elusive nature of the American Dream, set against the glittering backdrop of the Jazz Age.">
-            <img src="GGCover.jpg" draggable="false" alt="The Great Gatsby Cover" />
         </div>
-        <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Wonderful Wizard of Oz"
-        data-description="Dorothy's magical journey down the Yellow Brick Road, discovering that courage, heart, and brains are found within oneself.">
-        <img src="OZCover.jpg" draggable="false" alt="Wizard of Oz Cover" />
-    </div>
-    <div class="image-wrapper" style="--tint:#cba6f7;" data-title="We"
-    data-description="The dystopian masterpiece by Yevgeny Zamyatin that inspired 1984 and Brave New World, depicting a world of absolute logic and no individuality.">
-    <img src="WECover.jpg" draggable="false" alt="We Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="Herland"
-data-description="A feminist utopian novel about an isolated society composed entirely of women, who reproduce via parthenogenesis and live in peace.">
-<img src="HCover.jpg" draggable="false" alt="Herland Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="Alice in Wonderland"
-data-description="A whimsical descent into a nonsense world of white rabbits, mad hatters, and smiling cats, exploring the fluid nature of reality and logic.">
-<img src="AWCover.jpg" draggable="false" alt="Alice in Wonderland Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Secret Garden"
-data-description="A touching story of healing and friendship as an orphaned girl restores a locked, neglected garden and, in the process, her own spirit.">
-<img src="SGCover.webp" draggable="false" alt="The Secret Garden Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="Pride and Prejudice"
-data-description="The witty, romantic clash between the opinionated Elizabeth Bennet and the proud Mr. Darcy, exploring themes of love, reputation, and class.">
-<img src="PPCover.jpg" draggable="false" alt="Pride and Prejudice Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Time Machine"
-data-description="H.G. Wells' science fiction classic that takes a journey to the distant future, revealing a split human race: the Eloi and the Morlocks.">
-<img src="TMCover.jpg" draggable="false" alt="The Time Machine Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Lost World"
-data-description="An expedition to a plateau in the Amazon basin where prehistoric animals still survive. A thrilling tale of adventure and discovery.">
-<img src="LWCover.jpg" draggable="false" alt="The Lost World Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="Great Expectations"
-data-description="The coming-of-age story of Pip, an orphan who comes into a fortune, exploring ambition, class, and the true nature of gentility.">
-<img src="GECover.jpg" draggable="false" alt="Great Expectations Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="An Absolutely Remarkable Thing"
-data-description="A modern sci-fi tale about first contact, fame, and the internet age, triggered by the appearance of giant robot statues across the globe.">
-<img src="AARTCover.jpg" draggable="false" alt="An Absolutely Remarkable Thing Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="And Then There Were None"
-data-description="Agatha Christie's masterpiece mystery. Ten strangers are lured to an island, and one by one, they are accused of murder... and then they die.">
-<img src="ATWNCover.JPG" draggable="false" alt="And Then There Were None Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="Dracula"
-data-description="The quintessential vampire novel told through letters and diaries, detailing the battle between the vampire hunter Van Helsing and the ancient Count.">
-<img src="DCover.jpg" draggable="false" alt="Dracula Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Art of Hearing Heartbeats"
-data-description="A poignant love story set in Burma, about a daughter's journey to find her missing father and the magical history she uncovers.">
-<img src="AHH2.png" draggable="false" alt="The Art of Hearing Heartbeats Cover" />
-</div>
-<div class="image-wrapper" style="--tint:#f38ba8;" data-title="Near Miss"
-data-description="A Stone Barrington novel by Stuart Woods. A fast-paced thriller involving high stakes, international intrigue, and dangerous enemies.">
-<img src="NMCover.jpg" draggable="false" alt="Near Miss Cover" />
-</div>
-</div>
-</div>
 
-<div class="track-container">
-    <div class="year-header" style="top: 10%;">2026</div>
-    <div class="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
-        <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #1"
-        data-description="Coming soon...">
-        <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+1" draggable="false" />
-    </div>
-    <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #2"
-    data-description="Coming soon...">
-    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+2" draggable="false" />
-</div>
-<div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #3"
-data-description="Coming soon...">
-<img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+3" draggable="false" />
-</div>
-<div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #4"
-data-description="Coming soon...">
-<img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+4" draggable="false" />
-</div>
-<div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #5"
-data-description="Coming soon...">
-<img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+5" draggable="false" />
-</div>
-<div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #6"
-data-description="Coming soon...">
-<img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+6" draggable="false" />
-</div>
-<div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #7"
-data-description="Coming soon...">
-<img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+7" draggable="false" />
-</div>
-</div>
-</div>
-</section>
+        <div class="track-container">
+            <div class="year-header" style="top: 10%;">2026</div>
+            <div class="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
+                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #1" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+1" draggable="false" />
+                </div>
+                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #2" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+2" draggable="false" />
+                </div>
+                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #3" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+3" draggable="false" />
+                </div>
+                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #4" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+4" draggable="false" />
+                </div>
+                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #5" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+5" draggable="false" />
+                </div>
+                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #6" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+6" draggable="false" />
+                </div>
+                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #7" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+7" draggable="false" />
+                </div>
+            </div>
+        </div>
+    </section>
 
-<!-- Fullscreen Drawing Gallery Section -->
-<section id="gallery-section">
-    <div class="gallery-section-header">
-        <h2>My Drawings</h2>
-        <p class="subtitle">Click any artwork to enlarge</p>
+    <!-- Drawing Gallery (dynamically filled from PDF) -->
+    <section id="gallery-section">
+        <div class="gallery-section-header">
+            <h2>My Drawings</h2>
+            <p class="subtitle">Click any artwork to enlarge</p>
+        </div>
+        <!-- Gallery items will be inserted here by JavaScript -->
+        <div id="gallery-grid" style="display: contents;"></div>
+        <div id="gallery-loading">Loading drawings from PDF…</div>
+    </section>
+
+    <!-- Gallery Lightbox -->
+    <div id="gallery-lightbox">
+        <img src="" alt="Enlarged drawing" id="lightbox-img" />
+    </div>
+    <button id="lightbox-close" aria-label="Close lightbox">✕</button>
+
+    <!-- Book Details Overlay -->
+    <div id="details-view">
+        <div id="details-background"></div>
+        <div id="details-content">
+            <h2 id="details-title">Title</h2>
+            <p id="details-description">Desc</p>
+            <button id="back-button">←  Close</button>
+        </div>
     </div>
 
-    <!-- Gallery Item 1 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/f5f0e8/444?text=Drawing+1">
-        <img src="https://placehold.co/800x1000/f5f0e8/444?text=Drawing+1"
-        alt="Drawing 1" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Sketch — 2024</span>
-    </div>
+    <script>
+        /* ===================== PDF GALLERY CONFIGURATION ===================== */
+        // Put your PDF file in the same folder as this HTML and update the filename here:
+        const PDF_URL = 'drawings.pdf';   // <-- CHANGE THIS to your PDF file name
 
-    <!-- Gallery Item 2 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/e8e0d5/555?text=Drawing+2">
-        <img src="https://placehold.co/800x1000/e8e0d5/555?text=Drawing+2"
-        alt="Drawing 2" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Portrait Study</span>
-    </div>
+        // PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    <!-- Gallery Item 3 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/f0ebe3/3a3a3a?text=Drawing+3">
-        <img src="https://placehold.co/800x1000/f0ebe3/3a3a3a?text=Drawing+3"
-        alt="Drawing 3" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Landscape — 2025</span>
-    </div>
+        let pdfDoc = null;
+        let galleryRendered = false;
 
-    <!-- Gallery Item 4 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/dcd5c8/4a4a4a?text=Drawing+4">
-        <img src="https://placehold.co/800x1000/dcd5c8/4a4a4a?text=Drawing+4"
-        alt="Drawing 4" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Abstract</span>
-    </div>
+        const galleryGrid = document.getElementById('gallery-grid');
+        const galleryLoading = document.getElementById('gallery-loading');
+        const gallerySection = document.getElementById('gallery-section');
 
-    <!-- Gallery Item 5 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/f2ede5/333?text=Drawing+5">
-        <img src="https://placehold.co/800x1000/f2ede5/333?text=Drawing+5"
-        alt="Drawing 5" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Figure Study</span>
-    </div>
+        // Lightbox elements
+        const lightbox = document.getElementById('gallery-lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
 
-    <!-- Gallery Item 6 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/e5ddd0/505050?text=Drawing+6">
-        <img src="https://placehold.co/800x1000/e5ddd0/505050?text=Drawing+6"
-        alt="Drawing 6" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Still Life</span>
-    </div>
+        /* --- Load PDF and render all pages as gallery items --- */
+        async function loadGalleryFromPDF() {
+            if (galleryRendered) return; // Already done
+            galleryLoading.style.display = 'block';
 
-    <!-- Gallery Item 7 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/f8f2ea/3d3d3d?text=Drawing+7">
-        <img src="https://placehold.co/800x1000/f8f2ea/3d3d3d?text=Drawing+7"
-        alt="Drawing 7" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Charcoal — 2025</span>
-    </div>
+            try {
+                pdfDoc = await pdfjsLib.getDocument(PDF_URL).promise;
+                const totalPages = pdfDoc.numPages;
 
-    <!-- Gallery Item 8 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/e0d9cc/555?text=Drawing+8">
-        <img src="https://placehold.co/800x1000/e0d9cc/555?text=Drawing+8"
-        alt="Drawing 8" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Ink Sketch</span>
-    </div>
+                // Clear loading indicator
+                galleryLoading.style.display = 'none';
 
-    <!-- Gallery Item 9 -->
-    <div class="gallery-item" data-src="https://placehold.co/800x1000/f6f1e8/444?text=Drawing+9">
-        <img src="https://placehold.co/800x1000/f6f1e8/444?text=Drawing+9"
-        alt="Drawing 9" loading="lazy" />
-        <div class="glass-frame"></div>
-        <span class="gallery-label">Watercolor</span>
-    </div>
-</section>
+                // Render each page
+                for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                    const page = await pdfDoc.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: 1.5 }); // higher resolution
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
 
-<!-- Gallery Lightbox -->
-<div id="gallery-lightbox">
-    <img src="" alt="Enlarged drawing" id="lightbox-img" />
-</div>
-<button id="lightbox-close" aria-label="Close lightbox">✕</button>
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    }).promise;
 
-<!-- Book Details Overlay -->
-<div id="details-view">
-    <div id="details-background"></div>
-    <div id="details-content">
-        <h2 id="details-title">Title</h2>
-        <p id="details-description">Desc</p>
-        <button id="back-button">←  Close</button>
-    </div>
-</div>
+                    // Convert to data URL
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
-<script>
-    /* --- TAB NAVIGATION --- */
-    const navTabs = document.querySelectorAll('.nav-tab');
-    const bookSection = document.getElementById('book-section');
-    const gallerySection = document.getElementById('gallery-section');
-    const searchContainer = document.getElementById('search-container');
-    const body = document.body;
+                    // Create gallery item
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item';
+                    item.setAttribute('data-src', dataUrl);
 
-    navTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            if (tab.classList.contains('active')) return;
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.alt = `Drawing ${pageNum}`;
+                    img.loading = 'lazy';
+                    img.draggable = false;
 
-            // Update active tab
-            navTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
+                    const frame = document.createElement('div');
+                    frame.className = 'glass-frame';
 
-            const section = tab.dataset.section;
+                    const label = document.createElement('span');
+                    label.className = 'gallery-label';
+                    label.textContent = `Page ${pageNum}`;
 
-            if (section === 'gallery') {
-                body.classList.add('gallery-mode');
-                body.classList.remove('details-active');
-                // Reset any expanded cards
-                const expanded = document.querySelector('.image-wrapper.expanded');
-                if (expanded) {
-                    resetExpandedCard(expanded);
+                    item.appendChild(img);
+                    item.appendChild(frame);
+                    item.appendChild(label);
+
+                    // Attach lightbox click handler
+                    item.addEventListener('click', (e) => {
+                        if (window.getSelection().toString().length > 0) return;
+                        const src = item.getAttribute('data-src');
+                        lightboxImg.src = src;
+                        lightbox.classList.add('active');
+                        lightboxClose.classList.add('visible');
+                        document.body.style.overflow = 'hidden';
+                    });
+
+                    galleryGrid.appendChild(item);
                 }
-                document.body.classList.remove('details-active');
-            } else {
-                body.classList.remove('gallery-mode');
+
+                galleryRendered = true;
+            } catch (error) {
+                console.error('Failed to load PDF:', error);
+                galleryLoading.innerHTML = '⚠️ Could not load drawings.pdf. Make sure the file exists and is in the same folder.';
+                galleryLoading.style.color = '#f38ba8';
             }
+        }
+
+        /* --- Lightbox close functions --- */
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lightboxClose.classList.remove('visible');
+            if (!document.body.classList.contains('gallery-mode')) {
+                document.body.style.overflow = '';
+            }
+            setTimeout(() => {
+                if (!lightbox.classList.contains('active')) {
+                    lightboxImg.src = '';
+                }
+            }, 400);
+        }
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
         });
-    });
+        lightboxClose.addEventListener('click', closeLightbox);
 
-    /* --- GALLERY LIGHTBOX --- */
-    const lightbox = document.getElementById('gallery-lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const lightboxClose = document.getElementById('lightbox-close');
-    const galleryItems = document.querySelectorAll('.gallery-item');
+        /* --- Tab navigation triggers PDF load --- */
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const bookSection = document.getElementById('book-section');
+        const body = document.body;
 
-    galleryItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            // Don't trigger if user is selecting text or the click is on the label
-            if (window.getSelection().toString().length > 0) return;
-            const src = item.dataset.src;
-            lightboxImg.src = src;
-            lightbox.classList.add('active');
-            lightboxClose.classList.add('visible');
-            body.style.overflow = 'hidden';
-        });
-    });
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                if (tab.classList.contains('active')) return;
 
-    function closeLightbox() {
-        lightbox.classList.remove('active');
-        lightboxClose.classList.remove('visible');
-        if (!body.classList.contains('gallery-mode')) {
-            body.style.overflow = '';
-        }
-        // Small delay to clear src after transition
-        setTimeout(() => {
-            if (!lightbox.classList.contains('active')) {
-                lightboxImg.src = '';
-            }
-        }, 400);
-    }
+                navTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
 
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) closeLightbox();
-    });
-    lightboxClose.addEventListener('click', closeLightbox);
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (lightbox.classList.contains('active')) {
-                closeLightbox();
-            } else if (document.body.classList.contains('details-active')) {
-                hideDetails();
-            }
-        }
-    });
-
-    /* --- SEARCH FUNCTIONALITY --- */
-    const searchInput = document.getElementById('search-input');
-    const allWrappers = document.querySelectorAll('.image-wrapper');
-
-    searchInput.addEventListener('input', (e) => {
-        const value = e.target.value.toLowerCase();
-
-        allWrappers.forEach(wrapper => {
-            const title = wrapper.dataset.title.toLowerCase();
-            if (title.includes(value)) {
-                wrapper.classList.remove('dimmed');
-            } else {
-                wrapper.classList.add('dimmed');
-            }
-        });
-    });
-
-    /* --- WHEEL & DRAG LOGIC --- */
-    let activeTrack = null;
-    let isDragging = false;
-    let startX = 0;
-
-    const handleOnDown = (e) => {
-        if (document.body.classList.contains("details-active")) return;
-        if (document.body.classList.contains("gallery-mode")) return;
-
-        activeTrack = e.target.closest('.image-track');
-        if (!activeTrack) return;
-
-        startX = e.clientX || e.touches[0].clientX;
-        activeTrack.dataset.mouseDownAt = startX;
-        isDragging = false;
-    };
-
-    const handleOnUp = () => {
-        if (activeTrack) {
-            activeTrack.dataset.mouseDownAt = "0";
-            activeTrack.dataset.prevPercentage = activeTrack.dataset.percentage;
-            activeTrack = null;
-        }
-    };
-
-    const handleOnMove = (e) => {
-        if (!activeTrack || activeTrack.dataset.mouseDownAt === "0") return;
-
-        const clientX = e.clientX || e.touches[0].clientX;
-        const mouseDelta = parseFloat(activeTrack.dataset.mouseDownAt) - clientX;
-
-        if (Math.abs(mouseDelta) > 5) isDragging = true;
-
-        const maxDelta = window.innerWidth / 2;
-        const percentage = (mouseDelta / maxDelta) * -100;
-        let nextPercentage = parseFloat(activeTrack.dataset.prevPercentage) + percentage;
-
-        nextPercentage = Math.max(Math.min(nextPercentage, 0), -100);
-        activeTrack.dataset.percentage = nextPercentage;
-
-        activeTrack.animate({
-            transform: `translate(${nextPercentage}%, -50%)`
-        }, { duration: 1200, fill: "forwards" });
-
-        const images = activeTrack.getElementsByClassName("image-wrapper");
-
-        for (const wrapper of images) {
-            const img = wrapper.querySelector("img");
-
-            img.animate({
-                objectPosition: `${100 + nextPercentage}% center`
-            }, { duration: 1200, fill: "forwards" });
-
-            wrapper.animate({
-                transform: `rotate(${nextPercentage * 0.2}deg)`
-            }, { duration: 1200, fill: "forwards" });
-        }
-    };
-
-    window.onmousedown = e => handleOnDown(e);
-    window.ontouchstart = e => handleOnDown(e);
-    window.onmouseup = e => handleOnUp(e);
-    window.ontouchend = e => handleOnUp(e);
-    window.onmousemove = e => handleOnMove(e);
-    window.ontouchmove = e => handleOnMove(e);
-
-    /* -- Glow / Blob follow effect -- */
-    const blob = document.getElementById("blob");
-
-    window.onpointermove = event => {
-        const { clientX, clientY } = event;
-
-        blob.animate({
-            left: `${clientX}px`,
-            top: `${clientY}px`
-        }, { duration: 3000, fill: "forwards" });
-    };
-
-    /* --- DETAILS VIEW LOGIC --- */
-    const detailsView = document.getElementById("details-view");
-    const detailsBg = document.getElementById("details-background");
-    const backButton = document.getElementById("back-button");
-    const detailsTitle = document.getElementById("details-title");
-    const detailsDescription = document.getElementById("details-description");
-    let originalStyle = "";
-
-    allWrappers.forEach(wrapper => {
-        wrapper.addEventListener("click", () => {
-            if (isDragging) return;
-            if (document.body.classList.contains("gallery-mode")) return;
-
-            detailsTitle.textContent = wrapper.dataset.title;
-            detailsDescription.textContent = wrapper.dataset.description;
-
-            const img = wrapper.querySelector("img");
-            const tint = wrapper.style.getPropertyValue("--tint");
-
-            detailsBg.style.backgroundImage = `url(${img.src})`;
-            detailsTitle.style.color = tint;
-
-            originalStyle = wrapper.getAttribute("style");
-            const rect = wrapper.getBoundingClientRect();
-
-            wrapper.style.position = 'fixed';
-            wrapper.style.top = `${rect.top}px`;
-            wrapper.style.left = `${rect.left}px`;
-            wrapper.style.width = `${rect.width}px`;
-            wrapper.style.height = `${rect.height}px`;
-            wrapper.style.zIndex = '1001';
-
-            requestAnimationFrame(() => {
-                document.body.classList.add("details-active");
-                wrapper.classList.add("expanded");
+                const section = tab.dataset.section;
+                if (section === 'gallery') {
+                    body.classList.add('gallery-mode');
+                    body.classList.remove('details-active');
+                    // Reset any expanded book card
+                    const expanded = document.querySelector('.image-wrapper.expanded');
+                    if (expanded) {
+                        resetExpandedCard(expanded);
+                    }
+                    document.body.classList.remove('details-active');
+                    // Trigger PDF gallery load if not yet done
+                    if (!galleryRendered) {
+                        loadGalleryFromPDF();
+                    }
+                } else {
+                    body.classList.remove('gallery-mode');
+                }
             });
         });
-    });
 
-    function resetExpandedCard(expandedWrapper) {
-        if (!expandedWrapper) return;
-        expandedWrapper.classList.remove("expanded");
+        /* --- BOOK CLUB FUNCTIONALITY (unchanged) --- */
+        const searchInput = document.getElementById('search-input');
+        const allWrappers = document.querySelectorAll('.image-wrapper');
 
-        expandedWrapper.addEventListener('transitionend', () => {
-            if (originalStyle) {
-                expandedWrapper.setAttribute("style", originalStyle);
-            } else {
-                expandedWrapper.removeAttribute("style");
+        searchInput.addEventListener('input', (e) => {
+            const value = e.target.value.toLowerCase();
+            allWrappers.forEach(wrapper => {
+                const title = wrapper.dataset.title.toLowerCase();
+                wrapper.classList.toggle('dimmed', !title.includes(value));
+            });
+        });
+
+        let activeTrack = null;
+        let isDragging = false;
+        let startX = 0;
+
+        const handleOnDown = (e) => {
+            if (document.body.classList.contains("details-active")) return;
+            if (document.body.classList.contains("gallery-mode")) return;
+            activeTrack = e.target.closest('.image-track');
+            if (!activeTrack) return;
+            startX = e.clientX || e.touches[0].clientX;
+            activeTrack.dataset.mouseDownAt = startX;
+            isDragging = false;
+        };
+
+        const handleOnUp = () => {
+            if (activeTrack) {
+                activeTrack.dataset.mouseDownAt = "0";
+                activeTrack.dataset.prevPercentage = activeTrack.dataset.percentage;
+                activeTrack = null;
             }
+        };
 
-            const parentTrack = expandedWrapper.closest('.image-track');
-            if (parentTrack) {
-                const currentPercent = parseFloat(parentTrack.dataset.percentage) || 0;
-                expandedWrapper.animate({
-                    transform: `rotate(${currentPercent * 0.2}deg)`
-                }, { duration: 0, fill: "forwards" });
+        const handleOnMove = (e) => {
+            if (!activeTrack || activeTrack.dataset.mouseDownAt === "0") return;
+            const clientX = e.clientX || e.touches[0].clientX;
+            const mouseDelta = parseFloat(activeTrack.dataset.mouseDownAt) - clientX;
+            if (Math.abs(mouseDelta) > 5) isDragging = true;
+            const maxDelta = window.innerWidth / 2;
+            const percentage = (mouseDelta / maxDelta) * -100;
+            let nextPercentage = parseFloat(activeTrack.dataset.prevPercentage) + percentage;
+            nextPercentage = Math.max(Math.min(nextPercentage, 0), -100);
+            activeTrack.dataset.percentage = nextPercentage;
+            activeTrack.animate({
+                transform: `translate(${nextPercentage}%, -50%)`
+            }, { duration: 1200, fill: "forwards" });
+            const images = activeTrack.getElementsByClassName("image-wrapper");
+            for (const wrapper of images) {
+                const img = wrapper.querySelector("img");
+                img.animate({
+                    objectPosition: `${100 + nextPercentage}% center`
+                }, { duration: 1200, fill: "forwards" });
+                wrapper.animate({
+                    transform: `rotate(${nextPercentage * 0.2}deg)`
+                }, { duration: 1200, fill: "forwards" });
             }
-        }, { once: true });
-    }
+        };
 
-    const hideDetails = () => {
-        const expandedWrapper = document.querySelector(".image-wrapper.expanded");
-        if (!expandedWrapper) return;
+        window.onmousedown = e => handleOnDown(e);
+        window.ontouchstart = e => handleOnDown(e);
+        window.onmouseup = e => handleOnUp(e);
+        window.ontouchend = e => handleOnUp(e);
+        window.onmousemove = e => handleOnMove(e);
+        window.ontouchmove = e => handleOnMove(e);
 
-        document.body.classList.remove("details-active");
-        resetExpandedCard(expandedWrapper);
-    };
+        const blob = document.getElementById("blob");
+        window.onpointermove = event => {
+            const { clientX, clientY } = event;
+            blob.animate({
+                left: `${clientX}px`,
+                top: `${clientY}px`
+            }, { duration: 3000, fill: "forwards" });
+        };
 
-    backButton.addEventListener("click", hideDetails);
-    detailsView.addEventListener("click", (e) => {
-        if (e.target === detailsView || e.target === detailsBg) hideDetails();
-    });
+        const detailsView = document.getElementById("details-view");
+        const detailsBg = document.getElementById("details-background");
+        const backButton = document.getElementById("back-button");
+        const detailsTitle = document.getElementById("details-title");
+        const detailsDescription = document.getElementById("details-description");
+        let originalStyle = "";
 
-    /* --- Prevent image dragging globally --- */
-    document.addEventListener('dragstart', (e) => {
-        if (e.target.tagName === 'IMG') e.preventDefault();
-    });
+        allWrappers.forEach(wrapper => {
+            wrapper.addEventListener("click", () => {
+                if (isDragging) return;
+                if (document.body.classList.contains("gallery-mode")) return;
+                detailsTitle.textContent = wrapper.dataset.title;
+                detailsDescription.textContent = wrapper.dataset.description;
+                const img = wrapper.querySelector("img");
+                const tint = wrapper.style.getPropertyValue("--tint");
+                detailsBg.style.backgroundImage = `url(${img.src})`;
+                detailsTitle.style.color = tint;
+                originalStyle = wrapper.getAttribute("style");
+                const rect = wrapper.getBoundingClientRect();
+                wrapper.style.position = 'fixed';
+                wrapper.style.top = `${rect.top}px`;
+                wrapper.style.left = `${rect.left}px`;
+                wrapper.style.width = `${rect.width}px`;
+                wrapper.style.height = `${rect.height}px`;
+                wrapper.style.zIndex = '1001';
+                requestAnimationFrame(() => {
+                    document.body.classList.add("details-active");
+                    wrapper.classList.add("expanded");
+                });
+            });
+        });
 
-    /* --- Smooth gallery scroll restoration --- */
-    window.addEventListener('load', () => {
-        // Ensure book section is visible on load
-        body.classList.remove('gallery-mode');
-        document.querySelector('.nav-tab[data-section="book"]').classList.add('active');
-        document.querySelector('.nav-tab[data-section="gallery"]').classList.remove('active');
-    });
+        function resetExpandedCard(expandedWrapper) {
+            if (!expandedWrapper) return;
+            expandedWrapper.classList.remove("expanded");
+            expandedWrapper.addEventListener('transitionend', () => {
+                if (originalStyle) {
+                    expandedWrapper.setAttribute("style", originalStyle);
+                } else {
+                    expandedWrapper.removeAttribute("style");
+                }
+                const parentTrack = expandedWrapper.closest('.image-track');
+                if (parentTrack) {
+                    const currentPercent = parseFloat(parentTrack.dataset.percentage) || 0;
+                    expandedWrapper.animate({
+                        transform: `rotate(${currentPercent * 0.2}deg)`
+                    }, { duration: 0, fill: "forwards" });
+                }
+            }, { once: true });
+        }
 
-    console.log('✨ Book Club & Drawing Gallery ready');
-    console.log('📚 Click book covers to see details');
-    console.log('🎨 Click "My Drawings" tab for the fullscreen gallery');
-    console.log('🖱️ Click any artwork in the gallery to enlarge');
-</script>
+        const hideDetails = () => {
+            const expandedWrapper = document.querySelector(".image-wrapper.expanded");
+            if (!expandedWrapper) return;
+            document.body.classList.remove("details-active");
+            resetExpandedCard(expandedWrapper);
+        };
+
+        backButton.addEventListener("click", hideDetails);
+        detailsView.addEventListener("click", (e) => {
+            if (e.target === detailsView || e.target === detailsBg) hideDetails();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (lightbox.classList.contains('active')) {
+                    closeLightbox();
+                } else if (document.body.classList.contains('details-active')) {
+                    hideDetails();
+                }
+            }
+        });
+
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.tagName === 'IMG') e.preventDefault();
+        });
+
+        // Initial state
+        window.addEventListener('load', () => {
+            body.classList.remove('gallery-mode');
+            document.querySelector('.nav-tab[data-section="book"]').classList.add('active');
+            document.querySelector('.nav-tab[data-section="gallery"]').classList.remove('active');
+        });
+    </script>
 </body>
 </html>
