@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- PDF.js for rendering pages from PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         :root {
@@ -124,13 +123,11 @@
             font-family: 'Inter', system-ui, sans-serif;
             font-size: 0.9rem;
             font-weight: 500;
-            letter-spacing: 0.02em;
             color: rgba(245, 224, 220, 0.7);
             background: transparent;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.35s ease;
             white-space: nowrap;
             outline: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .nav-tab:hover {
@@ -142,12 +139,8 @@
             color: #fff;
             background: rgba(255, 255, 255, 0.12);
             font-weight: 600;
-            box-shadow:
-                0 4px 16px rgba(0, 0, 0, 0.3),
-                0 1px 0 rgba(255, 255, 255, 0.2) inset,
-                0 -1px 0 rgba(0, 0, 0, 0.2) inset;
             border: 1px solid rgba(255, 255, 255, 0.22);
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
 
         .nav-tab.active::after {
@@ -160,24 +153,13 @@
             height: 2px;
             border-radius: 2px;
             background: var(--accent);
-            box-shadow: 0 0 12px var(--accent), 0 0 4px var(--accent);
-            opacity: 0.8;
-        }
-
-        .nav-tab .tab-icon {
-            display: inline-block;
-            margin-right: 6px;
-            font-size: 0.85rem;
-            vertical-align: -1px;
+            box-shadow: 0 0 12px var(--accent);
         }
 
         /* --- MAIN SECTIONS --- */
         #book-section {
-            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: all;
-            padding-top: 80px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            padding-top: 100px;
         }
 
         body.gallery-mode #book-section {
@@ -185,7 +167,6 @@
             transform: translateY(-30px);
             pointer-events: none;
             position: absolute;
-            width: 100%;
         }
 
         #gallery-section {
@@ -194,18 +175,14 @@
             z-index: 100;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.55s ease, transform 0.55s ease;
             transform: translateY(20px);
             overflow-y: auto;
-            overflow-x: hidden;
             padding: calc(var(--nav-height) + 40px) 5vw 60px;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 28px;
-            align-content: start;
             justify-items: center;
-            background: radial-gradient(ellipse at 50% 30%, rgba(20, 18, 28, 0.5) 0%, rgba(17, 17, 27, 0.85) 70%);
-            scroll-behavior: smooth;
         }
 
         body.gallery-mode #gallery-section {
@@ -214,285 +191,55 @@
             transform: translateY(0);
         }
 
-        body.gallery-mode {
-            overflow: hidden;
-        }
-        body.gallery-mode #gallery-section {
-            overflow-y: auto;
-        }
+        body.gallery-mode { overflow: hidden; }
 
-        /* --- GALLERY ITEMS (Glass Skeuomorphic Frames) --- */
-        .gallery-item {
-            position: relative;
-            width: 100%;
-            max-width: 340px;
-            aspect-ratio: 3 / 4;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: transform 0.4s cubic-bezier(0.25, 0, 0.25, 1),
-                box-shadow 0.4s cubic-bezier(0.25, 0, 0.25, 1);
-            box-shadow:
-                0 16px 40px rgba(0, 0, 0, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .gallery-item:hover {
-            transform: translateY(-8px);
-            box-shadow:
-                0 28px 56px rgba(0, 0, 0, 0.55),
-                0 8px 20px rgba(0, 0, 0, 0.35),
-                0 0 0 1px rgba(255, 255, 255, 0.08);
-        }
-
-        .gallery-item .glass-frame {
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-            border-radius: 6px;
-            background: transparent;
-            border: 2px solid rgba(255, 255, 255, 0.18);
-            box-shadow:
-                0 0 0 8px rgba(20, 18, 15, 0.7),
-                0 0 0 10px rgba(180, 160, 130, 0.2),
-                0 0 0 11px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-                inset 1px 0 0 rgba(255, 255, 255, 0.1),
-                inset -1px 0 0 rgba(0, 0, 0, 0.15);
-            transition: all 0.4s cubic-bezier(0.25, 0, 0.25, 1);
-        }
-
-        .gallery-item:hover .glass-frame {
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow:
-                0 0 0 8px rgba(20, 18, 15, 0.75),
-                0 0 0 10px rgba(200, 175, 140, 0.3),
-                0 0 0 11px rgba(0, 0, 0, 0.55),
-                inset 0 2px 0 rgba(255, 255, 255, 0.4),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-                inset 1px 0 0 rgba(255, 255, 255, 0.15),
-                inset -1px 0 0 rgba(0, 0, 0, 0.2);
-        }
-
-        .gallery-item .glass-frame::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 4px;
-            background: linear-gradient(135deg,
-                    rgba(255, 255, 255, 0.18) 0%,
-                    rgba(255, 255, 255, 0.04) 30%,
-                    transparent 50%,
-                    rgba(255, 255, 255, 0.01) 70%,
-                    rgba(255, 255, 255, 0.08) 100%);
-            opacity: 0.7;
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-        }
-
-        .gallery-item:hover .glass-frame::after {
-            opacity: 1;
-            background: linear-gradient(135deg,
-                    rgba(255, 255, 255, 0.22) 0%,
-                    rgba(255, 255, 255, 0.06) 25%,
-                    transparent 48%,
-                    rgba(255, 255, 255, 0.02) 72%,
-                    rgba(255, 255, 255, 0.1) 100%);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            border-radius: 4px;
-            position: relative;
-            z-index: 1;
-            filter: brightness(0.95) contrast(1.02);
-            transition: filter 0.4s ease, transform 0.4s ease;
-        }
-
-        .gallery-item:hover img {
-            filter: brightness(1.05) contrast(1.04);
-            transform: scale(1.015);
-        }
-
-        .gallery-label {
-            position: absolute;
-            bottom: -32px;
-            left: 50%;
-            translate: -50% 0;
-            z-index: 3;
-            font-family: 'Cormorant Garamond', 'Georgia', serif;
-            font-size: 0.9rem;
-            font-style: italic;
-            color: rgba(245, 224, 220, 0.7);
-            text-align: center;
-            white-space: nowrap;
-            transition: color 0.3s ease;
-            pointer-events: none;
-        }
-
-        .gallery-item:hover .gallery-label {
-            color: rgba(245, 224, 220, 0.95);
-        }
-
-        /* --- GALLERY LIGHTBOX --- */
-        #gallery-lightbox {
-            position: fixed;
-            inset: 0;
-            z-index: 3000;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-            cursor: pointer;
-        }
-
-        #gallery-lightbox.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        #gallery-lightbox img {
-            max-width: 85vw;
-            max-height: 85vh;
-            object-fit: contain;
-            border-radius: 8px;
-            box-shadow:
-                0 0 0 12px rgba(20, 18, 15, 0.8),
-                0 0 0 14px rgba(180, 160, 130, 0.25),
-                0 0 0 16px rgba(0, 0, 0, 0.6),
-                0 40px 80px rgba(0, 0, 0, 0.6);
-            transform: scale(0.9);
-            transition: transform 0.4s cubic-bezier(0.25, 0, 0.25, 1);
-        }
-
-        #gallery-lightbox.active img {
-            transform: scale(1);
-        }
-
-        #lightbox-close {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            z-index: 3001;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            font-size: 1.4rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #gallery-lightbox.active ~ #lightbox-close,
-        #lightbox-close.visible {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        #lightbox-close:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* --- Search Bar --- */
+        /* --- SEARCH BAR --- */
         #search-container {
-            position: fixed;
-            top: 80px;
-            left: 0;
-            width: 100%;
-            padding: 16px 20px;
-            z-index: 500;
             display: flex;
             justify-content: center;
-            align-items: center;
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            pointer-events: none;
-        }
-
-        #search-container > * {
-            pointer-events: all;
-        }
-
-        body.gallery-mode #search-container {
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-20px);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 500;
         }
 
         #search-input {
             background: rgba(30, 30, 48, 0.55);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.18);
             padding: 13px 28px;
             border-radius: 34px;
             color: var(--text-color);
-            font-size: 1rem;
-            font-family: 'Inter', system-ui, sans-serif;
             width: 300px;
             outline: none;
-            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.35s ease,
-                border-color 0.35s ease,
-                background 0.35s ease;
-            box-shadow:
-                0 4px 20px rgba(0, 0, 0, 0.3),
-                0 1px 0 rgba(255, 255, 255, 0.08) inset;
+            transition: all 0.35s ease;
         }
 
         #search-input:focus {
             width: 420px;
             border-color: rgba(203, 166, 247, 0.5);
-            box-shadow:
-                0 8px 32px rgba(203, 166, 247, 0.2),
-                0 1px 0 rgba(255, 255, 255, 0.12) inset;
-            background: rgba(35, 35, 55, 0.7);
+            box-shadow: 0 8px 32px rgba(203, 166, 247, 0.2);
         }
 
-        #search-input::placeholder {
-            color: rgba(245, 224, 220, 0.45);
-        }
-
-        /* --- Year Headers --- */
-        .year-header {
-            font-size: clamp(3rem, 8vw, 8rem);
-            font-weight: 900;
-            color: rgba(255, 255, 255, 0.025);
-            position: absolute;
-            left: 5vw;
-            pointer-events: none;
-            z-index: 0;
-            line-height: 1;
-            font-family: 'Cormorant Garamond', 'Georgia', serif;
-            letter-spacing: -0.02em;
-        }
-
-        /* --- Track Container --- */
+        /* --- TRACK CONTAINER (Books) --- */
         .track-container {
             position: relative;
-            height: 60vh;
+            height: 50vh;
             width: 100vw;
             display: flex;
             align-items: center;
             margin-bottom: 5vh;
+            overflow: hidden; /* Prevent horizontal scrollbar on body */
+        }
+
+        .year-header {
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.05);
+            position: absolute;
+            left: 5vw;
+            pointer-events: none;
+            z-index: 0;
+            font-family: 'Cormorant Garamond', serif;
         }
 
         .image-track {
@@ -503,252 +250,108 @@
             top: 50%;
             transform: translate(0%, -50%);
             user-select: none;
-            transition: opacity 0.5s ease;
+            cursor: grab;
+        }
+        
+        .image-track:active {
+            cursor: grabbing;
         }
 
-        /* --- Images --- */
         .image-wrapper {
             position: relative;
-            width: 35vmin;
-            height: 50vmin;
-            cursor: pointer;
+            width: 30vmin;
+            height: 45vmin;
             flex-shrink: 0;
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            transform-style: preserve-3d;
             border-radius: 8px;
-            box-shadow:
-                0 8px 28px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, filter 0.3s ease;
         }
 
-        .image-wrapper:hover {
-            box-shadow:
-                0 14px 40px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.12);
+        .image-wrapper.hidden {
+            display: none;
         }
 
         .image-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: 100% center;
-            display: block;
             border-radius: 8px;
-            transition: object-position 0.1s linear;
+            pointer-events: none; /* Prevents dragging the ghost image */
         }
 
-        .image-wrapper::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-color: var(--tint, transparent);
-            mix-blend-mode: multiply;
-            opacity: 0.4;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-            border-radius: 8px;
-        }
-
-        .image-wrapper:hover::after {
-            opacity: 0.1;
-        }
-
-        /* --- Details Overlay --- */
+        /* --- DETAILS OVERLAY --- */
         #details-view {
             position: fixed;
             inset: 0;
-            background-color: transparent;
-            z-index: 1000;
+            z-index: 3000;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.4s ease;
-        }
-
-        #details-background {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            filter: blur(40px) brightness(0.25);
-            z-index: 0;
-            transform: scale(1.1);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
         }
 
         body.details-active #details-view {
             opacity: 1;
             pointer-events: all;
         }
-        body.details-active {
-            overflow: hidden;
-        }
-        body.details-active .image-track {
-            opacity: 0;
-            pointer-events: none;
-        }
-        body.details-active #search-container {
-            opacity: 0;
-            pointer-events: none;
-        }
-        body.details-active #glass-nav {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
 
-        #details-content {
-            position: relative;
-            z-index: 10;
-            width: 50vw;
-            height: 100vh;
-            color: var(--text-color);
-            padding: 8vmin;
-            box-sizing: border-box;
+        .details-container {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            transform: translateX(-20px);
-            transition: transform 0.5s ease;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            gap: 4rem;
+            max-width: 1000px;
+            width: 90%;
+            align-items: center;
         }
 
-        body.details-active #details-content {
-            transform: translateX(0);
-        }
-
-        #details-content h2 {
-            font-family: 'Cormorant Garamond', 'Georgia', serif;
-            font-size: clamp(2rem, 4vw, 3.5rem);
-            margin: 0 0 1rem 0;
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        #details-content p {
-            font-family: 'Cormorant Garamond', 'Georgia', serif;
-            font-size: clamp(1rem, 1.6vw, 1.3rem);
-            line-height: 1.7;
-            opacity: 0.9;
-        }
-
-        #back-button {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            padding: 13px 34px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 34px;
-            margin-top: 2rem;
-            align-self: flex-start;
-            transition: all 0.3s ease;
-            font-family: 'Inter', system-ui, sans-serif;
-            letter-spacing: 0.02em;
-            box-shadow:
-                0 4px 16px rgba(0, 0, 0, 0.3),
-                0 1px 0 rgba(255, 255, 255, 0.1) inset;
-        }
-        #back-button:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow:
-                0 8px 28px rgba(0, 0, 0, 0.4),
-                0 1px 0 rgba(255, 255, 255, 0.18) inset;
-            transform: translateY(-2px);
-        }
-
-        .image-wrapper.expanded {
-            width: 40vw;
-            height: 80vh;
-            z-index: 1003;
-            top: 50% !important;
-            left: 75% !important;
-            transform: translate(-50%, -50%) rotate(0deg) !important;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        .details-image img {
+            width: 40vmin;
             border-radius: 12px;
-        }
-        .image-wrapper.expanded::after { opacity: 0; }
-        .image-wrapper.expanded img { border-radius: 12px; }
-
-        .image-wrapper.dimmed {
-            opacity: 0.15;
-            transform: scale(0.88);
-            pointer-events: none;
-            filter: grayscale(0.5);
-            transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .gallery-section-header {
-            grid-column: 1 / -1;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .gallery-section-header h2 {
-            font-family: 'Cormorant Garamond', 'Georgia', serif;
-            font-size: clamp(2rem, 4vw, 3rem);
-            color: rgba(245, 224, 220, 0.8);
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
-        }
-        .gallery-section-header .subtitle {
-            font-family: 'Inter', system-ui, sans-serif;
-            font-size: 0.85rem;
-            color: rgba(245, 224, 220, 0.5);
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-
-        /* Loading indicator */
-        #gallery-loading {
-            grid-column: 1 / -1;
-            text-align: center;
+        .details-text {
             color: var(--text-color);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            padding: 40px;
-            opacity: 0.7;
         }
 
+        .details-text h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .details-text p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: rgba(245, 224, 220, 0.8);
+        }
+
+        #close-details {
+            padding: 10px 24px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        #close-details:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- RESPONSIVENESS --- */
         @media (max-width: 768px) {
-            #glass-nav {
-                top: 8px;
-                padding: 4px;
-                gap: 3px;
-                border-radius: 30px;
-            }
-            .nav-tab {
-                padding: 9px 16px;
-                font-size: 0.78rem;
-                border-radius: 24px;
-            }
-            #search-input {
-                width: 220px;
-                padding: 11px 20px;
-                font-size: 0.9rem;
-            }
-            #search-input:focus { width: 280px; }
-            #gallery-section {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 18px;
-                padding: calc(var(--nav-height) + 24px) 16px 40px;
-            }
-            .gallery-item .glass-frame {
-                border-width: 1.5px;
-                box-shadow:
-                    0 0 0 5px rgba(20, 18, 15, 0.7),
-                    0 0 0 7px rgba(180, 160, 130, 0.18),
-                    0 0 0 8px rgba(0, 0, 0, 0.5),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-                    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
-            }
-            #details-content { width: 85vw; padding: 5vmin; }
+            #search-input { width: 80%; }
+            #search-input:focus { width: 90%; }
+            .details-container { flex-direction: column; text-align: center; gap: 2rem; }
+            .details-image img { width: 60vmin; }
+            .image-wrapper { width: 45vmin; height: 65vmin; }
         }
     </style>
 </head>
@@ -756,439 +359,196 @@
     <div id="blob"></div>
     <div id="blur"></div>
 
-    <!-- Glass Navigation -->
     <nav id="glass-nav">
-        <button class="nav-tab active" data-section="book" aria-label="Book Club Section">
+        <button class="nav-tab active" data-section="book">
             <span class="tab-icon">📚</span> Book Club
         </button>
-        <button class="nav-tab" data-section="gallery" aria-label="Drawing Gallery">
+        <button class="nav-tab" data-section="gallery">
             <span class="tab-icon">🎨</span> My Drawings
         </button>
     </nav>
 
-    <!-- Book Club Section -->
     <section id="book-section">
         <div id="search-container">
             <input type="text" id="search-input" placeholder="🔍  Find a book...">
         </div>
 
         <div class="track-container">
-            <div class="year-header" style="top: 10%;">2025</div>
-            <div class="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Jane Eyre" data-description="A novel that challenges the conventions of its time, presenting a fierce, independent heroine who refuses to compromise her integrity for love or societal acceptance.">
-                    <img src="JE2025.jpg" draggable="false" alt="Jane Eyre Cover" />
+            <div class="year-header">2025</div>
+            <div class="image-track" data-percentage="0">
+                <div class="image-wrapper" data-title="Jane Eyre" data-description="A novel that challenges the conventions of its time...">
+                    <img src="https://placehold.co/400x600/1a1a2e/f38ba8?text=Jane+Eyre" alt="Jane Eyre" />
                 </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Great Gatsby" data-description="A tragic story of obsession, wealth, and the elusive nature of the American Dream, set against the glittering backdrop of the Jazz Age.">
-                    <img src="GGCover.jpg" draggable="false" alt="The Great Gatsby Cover" />
+                <div class="image-wrapper" data-title="The Great Gatsby" data-description="A tragic story of obsession, wealth, and the elusive nature of the American Dream...">
+                    <img src="https://placehold.co/400x600/1a1a2e/f38ba8?text=The+Great+Gatsby" alt="The Great Gatsby" />
                 </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Wonderful Wizard of Oz" data-description="Dorothy's magical journey down the Yellow Brick Road, discovering that courage, heart, and brains are found within oneself.">
-                    <img src="OZCover.jpg" draggable="false" alt="Wizard of Oz Cover" />
+                <div class="image-wrapper" data-title="The Wizard of Oz" data-description="Dorothy's magical journey down the Yellow Brick Road...">
+                    <img src="https://placehold.co/400x600/1a1a2e/f38ba8?text=Wizard+of+Oz" alt="Wizard of Oz" />
                 </div>
-                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="We" data-description="The dystopian masterpiece by Yevgeny Zamyatin that inspired 1984 and Brave New World, depicting a world of absolute logic and no individuality.">
-                    <img src="WECover.jpg" draggable="false" alt="We Cover" />
+                <div class="image-wrapper" data-title="We" data-description="The dystopian masterpiece by Yevgeny Zamyatin...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=We" alt="We" />
                 </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Herland" data-description="A feminist utopian novel about an isolated society composed entirely of women, who reproduce via parthenogenesis and live in peace.">
-                    <img src="HCover.jpg" draggable="false" alt="Herland Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Alice in Wonderland" data-description="A whimsical descent into a nonsense world of white rabbits, mad hatters, and smiling cats, exploring the fluid nature of reality and logic.">
-                    <img src="AWCover.jpg" draggable="false" alt="Alice in Wonderland Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Secret Garden" data-description="A touching story of healing and friendship as an orphaned girl restores a locked, neglected garden and, in the process, her own spirit.">
-                    <img src="SGCover.webp" draggable="false" alt="The Secret Garden Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Pride and Prejudice" data-description="The witty, romantic clash between the opinionated Elizabeth Bennet and the proud Mr. Darcy, exploring themes of love, reputation, and class.">
-                    <img src="PPCover.jpg" draggable="false" alt="Pride and Prejudice Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Time Machine" data-description="H.G. Wells' science fiction classic that takes a journey to the distant future, revealing a split human race: the Eloi and the Morlocks.">
-                    <img src="TMCover.jpg" draggable="false" alt="The Time Machine Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Lost World" data-description="An expedition to a plateau in the Amazon basin where prehistoric animals still survive. A thrilling tale of adventure and discovery.">
-                    <img src="LWCover.jpg" draggable="false" alt="The Lost World Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Great Expectations" data-description="The coming-of-age story of Pip, an orphan who comes into a fortune, exploring ambition, class, and the true nature of gentility.">
-                    <img src="GECover.jpg" draggable="false" alt="Great Expectations Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="An Absolutely Remarkable Thing" data-description="A modern sci-fi tale about first contact, fame, and the internet age, triggered by the appearance of giant robot statues across the globe.">
-                    <img src="AARTCover.jpg" draggable="false" alt="An Absolutely Remarkable Thing Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="And Then There Were None" data-description="Agatha Christie's masterpiece mystery. Ten strangers are lured to an island, and one by one, they are accused of murder... and then they die.">
-                    <img src="ATWNCover.JPG" draggable="false" alt="And Then There Were None Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Dracula" data-description="The quintessential vampire novel told through letters and diaries, detailing the battle between the vampire hunter Van Helsing and the ancient Count.">
-                    <img src="DCover.jpg" draggable="false" alt="Dracula Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="The Art of Hearing Heartbeats" data-description="A poignant love story set in Burma, about a daughter's journey to find her missing father and the magical history she uncovers.">
-                    <img src="AHH2.png" draggable="false" alt="The Art of Hearing Heartbeats Cover" />
-                </div>
-                <div class="image-wrapper" style="--tint:#f38ba8;" data-title="Near Miss" data-description="A Stone Barrington novel by Stuart Woods. A fast-paced thriller involving high stakes, international intrigue, and dangerous enemies.">
-                    <img src="NMCover.jpg" draggable="false" alt="Near Miss Cover" />
+                <div class="image-wrapper" data-title="Herland" data-description="A feminist utopian novel about an isolated society...">
+                    <img src="https://placehold.co/400x600/1a1a2e/f38ba8?text=Herland" alt="Herland" />
                 </div>
             </div>
         </div>
 
         <div class="track-container">
-            <div class="year-header" style="top: 10%;">2026</div>
-            <div class="image-track" data-mouse-down-at="0" data-prev-percentage="0" data-percentage="0">
-                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #1" data-description="Coming soon...">
-                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+1" draggable="false" />
+            <div class="year-header">2026</div>
+            <div class="image-track" data-percentage="0">
+                <div class="image-wrapper" data-title="2026 Read #1" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+1" />
                 </div>
-                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #2" data-description="Coming soon...">
-                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+2" draggable="false" />
+                <div class="image-wrapper" data-title="2026 Read #2" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+2" />
                 </div>
-                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #3" data-description="Coming soon...">
-                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+3" draggable="false" />
-                </div>
-                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #4" data-description="Coming soon...">
-                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+4" draggable="false" />
-                </div>
-                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #5" data-description="Coming soon...">
-                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+5" draggable="false" />
-                </div>
-                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #6" data-description="Coming soon...">
-                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+6" draggable="false" />
-                </div>
-                <div class="image-wrapper" style="--tint:#cba6f7;" data-title="2026 Read #7" data-description="Coming soon...">
-                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+7" draggable="false" />
+                <div class="image-wrapper" data-title="2026 Read #3" data-description="Coming soon...">
+                    <img src="https://placehold.co/400x600/1a1a2e/cba6f7?text=2026+Book+3" />
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Drawing Gallery (dynamically filled from PDFs) -->
     <section id="gallery-section">
-        <div class="gallery-section-header">
-            <h2>My Drawings</h2>
-            <p class="subtitle">Click any artwork to enlarge</p>
+        <div style="grid-column: 1 / -1; text-align: center; margin-bottom: 20px;">
+            <h2 style="font-family: 'Cormorant Garamond'; font-size: 3rem; color: var(--text-color);">My Drawings</h2>
         </div>
-        <div id="gallery-grid" style="display: contents;"></div>
-        <div id="gallery-loading">Loading drawings from PDFs…</div>
+        <div style="color: var(--text-color); grid-column: 1/-1;">Gallery content goes here...</div>
     </section>
 
-    <!-- Gallery Lightbox -->
-    <div id="gallery-lightbox">
-        <img src="" alt="Enlarged drawing" id="lightbox-img" />
-    </div>
-    <button id="lightbox-close" aria-label="Close lightbox">✕</button>
-
-    <!-- Book Details Overlay -->
     <div id="details-view">
-        <div id="details-background"></div>
-        <div id="details-content">
-            <h2 id="details-title">Title</h2>
-            <p id="details-description">Desc</p>
-            <button id="back-button">←  Close</button>
+        <div class="details-container">
+            <div class="details-image">
+                <img id="detail-img" src="" alt="Detail View">
+            </div>
+            <div class="details-text">
+                <h2 id="detail-title">Title</h2>
+                <p id="detail-desc">Description goes here.</p>
+                <button id="close-details">Close</button>
+            </div>
         </div>
     </div>
 
     <script>
-        /* ===================== MULTI-PDF GALLERY CONFIGURATION ===================== */
-        // List all your PDF filenames here (place them in the same folder as this HTML)
-        const PDF_FILES = [
-            'drawings1.pdf',
-            'drawings2.pdf',
-            'drawings3.pdf'
-            // Add more files as needed
-        ];
-
-        // PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-
-        let pdfDocs = [];
-        let galleryRendered = false;
-
-        const galleryGrid = document.getElementById('gallery-grid');
-        const galleryLoading = document.getElementById('gallery-loading');
-        const gallerySection = document.getElementById('gallery-section');
-
-        // Lightbox elements
-        const lightbox = document.getElementById('gallery-lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        const lightboxClose = document.getElementById('lightbox-close');
-
-        /* --- Load all PDFs and render every page as a gallery item --- */
-        async function loadGalleryFromPDFs() {
-            if (galleryRendered) return;
-            galleryLoading.style.display = 'block';
-
-            let globalDrawingNumber = 1; // sequential number across all PDFs
-
-            try {
-                for (const pdfUrl of PDF_FILES) {
-                    console.log(`Loading PDF: ${pdfUrl}`);
-                    const pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
-                    const totalPages = pdfDoc.numPages;
-
-                    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-                        const page = await pdfDoc.getPage(pageNum);
-                        const viewport = page.getViewport({ scale: 1.5 }); // high resolution
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-
-                        await page.render({
-                            canvasContext: context,
-                            viewport: viewport
-                        }).promise;
-
-                        // Convert to high-quality JPEG data URL
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-
-                        // Create gallery item
-                        const item = document.createElement('div');
-                        item.className = 'gallery-item';
-                        item.setAttribute('data-src', dataUrl);
-
-                        const img = document.createElement('img');
-                        img.src = dataUrl;
-                        img.alt = `Drawing ${globalDrawingNumber}`;
-                        img.loading = 'lazy';
-                        img.draggable = false;
-
-                        const frame = document.createElement('div');
-                        frame.className = 'glass-frame';
-
-                        const label = document.createElement('span');
-                        label.className = 'gallery-label';
-                        label.textContent = `Drawing ${globalDrawingNumber}`;
-
-                        item.appendChild(img);
-                        item.appendChild(frame);
-                        item.appendChild(label);
-
-                        // Lightbox click handler
-                        item.addEventListener('click', (e) => {
-                            if (window.getSelection().toString().length > 0) return;
-                            const src = item.getAttribute('data-src');
-                            lightboxImg.src = src;
-                            lightbox.classList.add('active');
-                            lightboxClose.classList.add('visible');
-                            document.body.style.overflow = 'hidden';
-                        });
-
-                        galleryGrid.appendChild(item);
-                        globalDrawingNumber++;
-                    }
-                }
-
-                galleryLoading.style.display = 'none';
-                galleryRendered = true;
-                console.log(`✅ Gallery loaded: ${globalDrawingNumber - 1} drawings from ${PDF_FILES.length} PDF(s)`);
-            } catch (error) {
-                console.error('Failed to load PDFs:', error);
-                galleryLoading.innerHTML = '⚠️ Could not load drawings. Check that PDF files exist and are in the same folder.';
-                galleryLoading.style.color = '#f38ba8';
-            }
-        }
-
-        /* --- Lightbox close functions --- */
-        function closeLightbox() {
-            lightbox.classList.remove('active');
-            lightboxClose.classList.remove('visible');
-            if (!document.body.classList.contains('gallery-mode')) {
-                document.body.style.overflow = '';
-            }
-            setTimeout(() => {
-                if (!lightbox.classList.contains('active')) {
-                    lightboxImg.src = '';
-                }
-            }, 400);
-        }
-
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-        });
-        lightboxClose.addEventListener('click', closeLightbox);
-
-        /* --- Tab navigation triggers PDF load --- */
-        const navTabs = document.querySelectorAll('.nav-tab');
-        const bookSection = document.getElementById('book-section');
-        const body = document.body;
-
-        navTabs.forEach(tab => {
+        // --- TAB SWITCHING LOGIC ---
+        const tabs = document.querySelectorAll('.nav-tab');
+        tabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                if (tab.classList.contains('active')) return;
-
-                navTabs.forEach(t => t.classList.remove('active'));
+                tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-
-                const section = tab.dataset.section;
-                if (section === 'gallery') {
-                    body.classList.add('gallery-mode');
-                    body.classList.remove('details-active');
-                    // Reset any expanded book card
-                    const expanded = document.querySelector('.image-wrapper.expanded');
-                    if (expanded) {
-                        resetExpandedCard(expanded);
-                    }
-                    document.body.classList.remove('details-active');
-                    // Trigger PDF gallery load if not yet done
-                    if (!galleryRendered) {
-                        loadGalleryFromPDFs();
-                    }
+                if (tab.dataset.section === 'gallery') {
+                    document.body.classList.add('gallery-mode');
                 } else {
-                    body.classList.remove('gallery-mode');
+                    document.body.classList.remove('gallery-mode');
                 }
             });
         });
 
-        /* --- BOOK CLUB FUNCTIONALITY (unchanged) --- */
+        // --- TRACK DRAGGING LOGIC (Mouse + Touch support) ---
+        const tracks = document.querySelectorAll('.image-track');
+        
+        tracks.forEach(track => {
+            let isDown = false;
+            let startX;
+            let prevPercentage = parseFloat(track.dataset.percentage) || 0;
+
+            const startDrag = (e) => {
+                isDown = true;
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            };
+
+            const stopDrag = () => {
+                isDown = false;
+                track.dataset.percentage = prevPercentage;
+            };
+
+            const moveDrag = (e) => {
+                if (!isDown) return;
+                const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const mouseDelta = parseFloat(startX) - currentX;
+                const maxDelta = window.innerWidth / 2;
+                
+                const percentage = (mouseDelta / maxDelta) * -100;
+                let nextPercentageUnconstrained = prevPercentage + percentage;
+                let nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
+                
+                prevPercentage = nextPercentage;
+                track.dataset.percentage = nextPercentage;
+                
+                // Animate track
+                track.animate({
+                    transform: `translate(${nextPercentage}%, -50%)`
+                }, { duration: 1200, fill: "forwards" });
+
+                // Animate image object-position for parallax effect
+                for (const image of track.getElementsByTagName("img")) {
+                    image.animate({
+                        objectPosition: `${100 + nextPercentage}% center`
+                    }, { duration: 1200, fill: "forwards" });
+                }
+                
+                startX = currentX; // Reset startX for smooth continuous dragging
+            };
+
+            // Mouse Events
+            track.addEventListener('mousedown', startDrag);
+            window.addEventListener('mouseup', stopDrag);
+            window.addEventListener('mousemove', moveDrag);
+
+            // Touch Events (Mobile)
+            track.addEventListener('touchstart', startDrag, {passive: true});
+            window.addEventListener('touchend', stopDrag);
+            window.addEventListener('touchmove', moveDrag, {passive: true});
+        });
+
+        // --- SEARCH LOGIC ---
         const searchInput = document.getElementById('search-input');
-        const allWrappers = document.querySelectorAll('.image-wrapper');
+        const bookWrappers = document.querySelectorAll('.image-wrapper');
 
         searchInput.addEventListener('input', (e) => {
-            const value = e.target.value.toLowerCase();
-            allWrappers.forEach(wrapper => {
+            const term = e.target.value.toLowerCase();
+            bookWrappers.forEach(wrapper => {
                 const title = wrapper.dataset.title.toLowerCase();
-                wrapper.classList.toggle('dimmed', !title.includes(value));
-            });
-        });
-
-        let activeTrack = null;
-        let isDragging = false;
-        let startX = 0;
-
-        const handleOnDown = (e) => {
-            if (document.body.classList.contains("details-active")) return;
-            if (document.body.classList.contains("gallery-mode")) return;
-            activeTrack = e.target.closest('.image-track');
-            if (!activeTrack) return;
-            startX = e.clientX || e.touches[0].clientX;
-            activeTrack.dataset.mouseDownAt = startX;
-            isDragging = false;
-        };
-
-        const handleOnUp = () => {
-            if (activeTrack) {
-                activeTrack.dataset.mouseDownAt = "0";
-                activeTrack.dataset.prevPercentage = activeTrack.dataset.percentage;
-                activeTrack = null;
-            }
-        };
-
-        const handleOnMove = (e) => {
-            if (!activeTrack || activeTrack.dataset.mouseDownAt === "0") return;
-            const clientX = e.clientX || e.touches[0].clientX;
-            const mouseDelta = parseFloat(activeTrack.dataset.mouseDownAt) - clientX;
-            if (Math.abs(mouseDelta) > 5) isDragging = true;
-            const maxDelta = window.innerWidth / 2;
-            const percentage = (mouseDelta / maxDelta) * -100;
-            let nextPercentage = parseFloat(activeTrack.dataset.prevPercentage) + percentage;
-            nextPercentage = Math.max(Math.min(nextPercentage, 0), -100);
-            activeTrack.dataset.percentage = nextPercentage;
-            activeTrack.animate({
-                transform: `translate(${nextPercentage}%, -50%)`
-            }, { duration: 1200, fill: "forwards" });
-            const images = activeTrack.getElementsByClassName("image-wrapper");
-            for (const wrapper of images) {
-                const img = wrapper.querySelector("img");
-                img.animate({
-                    objectPosition: `${100 + nextPercentage}% center`
-                }, { duration: 1200, fill: "forwards" });
-                wrapper.animate({
-                    transform: `rotate(${nextPercentage * 0.2}deg)`
-                }, { duration: 1200, fill: "forwards" });
-            }
-        };
-
-        window.onmousedown = e => handleOnDown(e);
-        window.ontouchstart = e => handleOnDown(e);
-        window.onmouseup = e => handleOnUp(e);
-        window.ontouchend = e => handleOnUp(e);
-        window.onmousemove = e => handleOnMove(e);
-        window.ontouchmove = e => handleOnMove(e);
-
-        const blob = document.getElementById("blob");
-        window.onpointermove = event => {
-            const { clientX, clientY } = event;
-            blob.animate({
-                left: `${clientX}px`,
-                top: `${clientY}px`
-            }, { duration: 3000, fill: "forwards" });
-        };
-
-        const detailsView = document.getElementById("details-view");
-        const detailsBg = document.getElementById("details-background");
-        const backButton = document.getElementById("back-button");
-        const detailsTitle = document.getElementById("details-title");
-        const detailsDescription = document.getElementById("details-description");
-        let originalStyle = "";
-
-        allWrappers.forEach(wrapper => {
-            wrapper.addEventListener("click", () => {
-                if (isDragging) return;
-                if (document.body.classList.contains("gallery-mode")) return;
-                detailsTitle.textContent = wrapper.dataset.title;
-                detailsDescription.textContent = wrapper.dataset.description;
-                const img = wrapper.querySelector("img");
-                const tint = wrapper.style.getPropertyValue("--tint");
-                detailsBg.style.backgroundImage = `url(${img.src})`;
-                detailsTitle.style.color = tint;
-                originalStyle = wrapper.getAttribute("style");
-                const rect = wrapper.getBoundingClientRect();
-                wrapper.style.position = 'fixed';
-                wrapper.style.top = `${rect.top}px`;
-                wrapper.style.left = `${rect.left}px`;
-                wrapper.style.width = `${rect.width}px`;
-                wrapper.style.height = `${rect.height}px`;
-                wrapper.style.zIndex = '1001';
-                requestAnimationFrame(() => {
-                    document.body.classList.add("details-active");
-                    wrapper.classList.add("expanded");
-                });
-            });
-        });
-
-        function resetExpandedCard(expandedWrapper) {
-            if (!expandedWrapper) return;
-            expandedWrapper.classList.remove("expanded");
-            expandedWrapper.addEventListener('transitionend', () => {
-                if (originalStyle) {
-                    expandedWrapper.setAttribute("style", originalStyle);
+                if (title.includes(term)) {
+                    wrapper.classList.remove('hidden');
                 } else {
-                    expandedWrapper.removeAttribute("style");
+                    wrapper.classList.add('hidden');
                 }
-                const parentTrack = expandedWrapper.closest('.image-track');
-                if (parentTrack) {
-                    const currentPercent = parseFloat(parentTrack.dataset.percentage) || 0;
-                    expandedWrapper.animate({
-                        transform: `rotate(${currentPercent * 0.2}deg)`
-                    }, { duration: 0, fill: "forwards" });
-                }
-            }, { once: true });
-        }
-
-        const hideDetails = () => {
-            const expandedWrapper = document.querySelector(".image-wrapper.expanded");
-            if (!expandedWrapper) return;
-            document.body.classList.remove("details-active");
-            resetExpandedCard(expandedWrapper);
-        };
-
-        backButton.addEventListener("click", hideDetails);
-        detailsView.addEventListener("click", (e) => {
-            if (e.target === detailsView || e.target === detailsBg) hideDetails();
+            });
         });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (lightbox.classList.contains('active')) {
-                    closeLightbox();
-                } else if (document.body.classList.contains('details-active')) {
-                    hideDetails();
-                }
-            }
+        // --- DETAILS MODAL LOGIC ---
+        const detailsView = document.getElementById('details-view');
+        const detailImg = document.getElementById('detail-img');
+        const detailTitle = document.getElementById('detail-title');
+        const detailDesc = document.getElementById('detail-desc');
+        const closeBtn = document.getElementById('close-details');
+
+        // Note: Prevent click triggering immediately after dragging
+        let dragTimer;
+        window.addEventListener('mousedown', () => clearTimeout(dragTimer));
+        window.addEventListener('mousemove', () => dragTimer = setTimeout(() => {}, 100));
+
+        bookWrappers.forEach(wrapper => {
+            wrapper.addEventListener('click', (e) => {
+                // If we are actively dragging, ignore the click
+                if (dragTimer) return; 
+
+                const imgSrc = wrapper.querySelector('img').src;
+                const title = wrapper.dataset.title;
+                const desc = wrapper.dataset.description;
+
+                detailImg.src = imgSrc;
+                detailTitle.textContent = title;
+                detailDesc.textContent = desc;
+
+                document.body.classList.add('details-active');
+            });
         });
 
-        document.addEventListener('dragstart', (e) => {
-            if (e.target.tagName === 'IMG') e.preventDefault();
-        });
-
-        // Initial state
-        window.addEventListener('load', () => {
-            body.classList.remove('gallery-mode');
-            document.querySelector('.nav-tab[data-section="book"]').classList.add('active');
-            document.querySelector('.nav-tab[data-section="gallery"]').classList.remove('active');
+        closeBtn.addEventListener('click', () => {
+            document.body.classList.remove('details-active');
         });
     </script>
 </body>
